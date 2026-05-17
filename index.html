@@ -471,7 +471,6 @@
       // 첫 결제일 ~ 오늘까지 전체 날짜 범위 생성 (빈 날짜 포함)
       var firstDate = new Date(dailyStats[0].date);
       var lastDate  = new Date();
-      lastDate.setHours(0, 0, 0, 0);
       var allDates = [];
       var cur = new Date(firstDate);
       while (cur <= lastDate) {
