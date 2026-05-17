@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>마포 클럽하우스 판매 대시보드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #07090F;
+      --surface:      #0D1120;
+      --surface-2:    #121828;
+      --border:       #1C2540;
+      --border-soft:  #141C30;
+      --text:         #D0DCF0;
+      --text-sub:     #8A9DC0;
+      --text-dim:     #3A4F6A;
+      --accent:       #3D7FFF;
+      --success:      #1FD49A;
+      --warning:      #F5A623;
+      --gold:         #F5C842;
+      --cat-bg:       #111828;
+      --prod-bg:      #090C18;
+      --hover:        #151F35;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    body { padding: 28px 32px 48px; }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 36px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-brand { display: flex; align-items: center; gap: 14px; }
+
+    .brand-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+      flex-shrink: 0;
+    }
+
+    .brand-info .location {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 4px;
+    }
+
+    .brand-info h1 {
+      font-size: 22px; font-weight: 700;
+      letter-spacing: -0.03em; color: var(--text);
+    }
+
+    .header-meta { text-align: right; }
+
+    .header-meta .label {
+      font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-dim); margin-bottom: 3px;
+    }
+
+    .header-meta .timestamp {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--text-sub);
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ── Table wrapper ── */
+    .table-wrap {
+      border-radius: 12px; border: 1px solid var(--border);
+      overflow: hidden; overflow-x: auto;
+    }
+
+    table { width: 100%; min-width: 860px; border-collapse: collapse; }
+
+    /* ── Table head ── */
+    thead { position: sticky; top: 0; z-index: 10; }
+    thead tr { background: var(--surface-2); }
+
+    thead th {
+      padding: 11px 16px;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-dim); text-align: right; white-space: nowrap;
+      border-bottom: 1px solid var(--border);
+    }
+    thead th.col-name { text-align: left; min-width: 200px; }
+    thead th.col-prog { min-width: 130px; }
+
+    /* ── Sticky first column ── */
+    table td:first-child,
+    table th.col-name { position: sticky; left: 0; z-index: 5; }
+    thead th.col-name  { background: var(--surface-2); z-index: 15; }
+
+    /* ── VAT sub-label in header ── */
+    .vat-tag {
+      display: block;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      margin-top: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ── Category rows ── */
+    .cat-row { cursor: pointer; }
+    .cat-row td {
+      padding: 13px 16px; background: var(--cat-bg);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-soft);
+      vertical-align: middle;
+    }
+    .cat-row td:first-child { border-left: 3px solid var(--accent); }
+    .cat-row:hover td { background: var(--hover); }
+
+    .cat-name {
+      font-weight: 700; font-size: 13px; color: var(--text);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .cat-text { display: flex; flex-direction: column; gap: 2px; }
+    .cat-prefix {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-dim); line-height: 1;
+    }
+
+    /* ── Toggle icon ── */
+    .toggle-icon {
+      display: inline-block;
+      font-size: 9px;
+      flex-shrink: 0;
+      color: var(--text-dim);
+      transition: transform 0.2s ease;
+    }
+    .cat-row.expanded .toggle-icon { transform: rotate(90deg); }
+
+    /* ── Band colors (대분류별 배경) ── */
+    .cat-row.band-package td,  .prod-row.band-package td  { background: #0D1520; }
+    .cat-row.band-package td:first-child  { border-left-color: #3D7FFF; }
+
+    .cat-row.band-access td,   .prod-row.band-access td   { background: #0A1A14; }
+    .cat-row.band-access td:first-child   { border-left-color: #1FD49A; }
+
+    .cat-row.band-contents td, .prod-row.band-contents td { background: #1A1408; }
+    .cat-row.band-contents td:first-child { border-left-color: #F5C842; }
+
+    .cat-row.band-access-contents td, .prod-row.band-access-contents td { background: #1A1408; }
+    .cat-row.band-access-contents td:first-child { border-left-color: #F5C842; }
+
+    .cat-row.band-package:hover td,       .prod-row.band-package:hover td,
+    .cat-row.band-access:hover td,        .prod-row.band-access:hover td,
+    .cat-row.band-access-contents:hover td, .prod-row.band-access-contents:hover td,
+    .cat-row.band-contents:hover td,      .prod-row.band-contents:hover td { background: var(--hover); }
+
+    .cat-row.band-gita td, .prod-row.band-gita td { background: #130F1A; }
+    .cat-row.band-gita td:first-child { border-left-color: #8A5CF6; }
+    .cat-row.band-gita:hover td, .prod-row.band-gita:hover td { background: var(--hover); }
+
+    /* ── Product rows ── */
+    .prod-row td {
+      padding: 9px 16px; background: var(--prod-bg);
+      border-bottom: 1px solid var(--border-soft);
+      vertical-align: middle;
+    }
+    .prod-row.last-in-group td { border-bottom: 1px solid var(--border); }
+    .prod-row:hover td { background: var(--hover); }
+    .prod-row.zero td { opacity: 0.35; }
+
+    .prod-name { font-size: 12px; color: var(--text-sub); padding-left: 18px; }
+
+    /* ── Totals row ── */
+    .totals-row td {
+      padding: 13px 16px; background: #0C1525;
+      border-top: 2px solid var(--accent);
+      border-bottom: 2px solid var(--accent);
+      vertical-align: middle;
+    }
+    .totals-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-sub);
+    }
+
+    /* ── Total note (건수 제외 안내) ── */
+    .total-note {
+      font-size: 10px;
+      color: var(--text-dim);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 400;
+      margin-top: 3px;
+      letter-spacing: 0;
+    }
+
+    /* ── Number cells ── */
+    .n {
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--text); white-space: nowrap;
+    }
+    .n.strong { font-weight: 600; }
+    .n.dim    { color: var(--text-dim); font-size: 11px; }
+
+    /* ── Achievement cell ── */
+    .ach {
+      display: flex; flex-direction: column;
+      align-items: flex-end; gap: 5px; padding-right: 2px;
+    }
+
+    .pct { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; }
+    .pct.c-none  { color: var(--text-dim); }
+    .pct.c-early { color: var(--warning); }
+    .pct.c-mid   { color: var(--accent); }
+    .pct.c-high  { color: var(--success); }
+    .pct.c-done  { color: var(--gold); }
+
+    .bar-track {
+      width: 100%; height: 4px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 2px; overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%; border-radius: 2px;
+      transition: width 0.9s cubic-bezier(0.4,0,0.2,1);
+    }
+    .bar-fill.c-none  { background: var(--text-dim); }
+    .bar-fill.c-early { background: var(--warning); }
+    .bar-fill.c-mid   { background: var(--accent); }
+    .bar-fill.c-high  { background: var(--success); }
+    .bar-fill.c-done  { background: linear-gradient(90deg, var(--success), var(--gold)); }
+
+    /* ── Pending (미집계중) ── */
+    .pending-cell {
+      color: var(--text-dim);
+      font-size: 11px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-style: italic;
+    }
+
+    /* ── Refresh bar ── */
+    .refresh-wrap {
+      margin-top: 14px; display: flex;
+      align-items: center; gap: 10px;
+    }
+    .refresh-label {
+      font-size: 10px; letter-spacing: 0.08em;
+      color: var(--text-dim); white-space: nowrap;
+    }
+    .refresh-track {
+      flex: 1; height: 2px; background: var(--border);
+      border-radius: 1px; overflow: hidden;
+    }
+    .refresh-fill {
+      height: 100%; background: var(--accent);
+      border-radius: 1px; width: 0%;
+    }
+
+    /* ── Section 2 ── */
+    .s2-controls {
+      display: flex; flex-wrap: wrap; align-items: center;
+      gap: 8px; margin-bottom: 14px;
+    }
+    .s2-filters { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+    .s2-metric  { display: flex; gap: 4px; flex-shrink: 0; }
+
+    .filter-btn, .metric-btn {
+      padding: 4px 12px;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      border-radius: 20px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-dim);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .filter-btn.active { color: #fff; border-color: transparent; }
+    .metric-btn.active { background: var(--surface-2); border-color: var(--border-soft); color: var(--text); }
+    .filter-btn:hover:not(.active), .metric-btn:hover:not(.active) {
+      border-color: var(--text-sub); color: var(--text-sub);
+    }
+
+    .chart-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px;
+      position: relative; height: 280px;
+    }
+    #s2-chart-wrap { overflow-x: auto; overflow-y: hidden; }
+
+    .trend-stats {
+      display: flex; gap: 32px; margin-top: 20px;
+      justify-content: center;
+    }
+    .trend-stat { text-align: center; }
+    .trend-stat-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;
+    }
+    .trend-stat-value { font-size: 22px; font-weight: 700; }
+    .trend-stat-value.blue   { color: #3D7FFF; }
+    .trend-stat-value.orange { color: var(--warning); }
+    .trend-ach {
+      position: absolute; top: 16px; right: 20px;
+      font-size: 28px; font-weight: 700; color: #FF4444;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── State ── */
+    .state {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 280px; gap: 10px;
+      color: var(--text-sub); font-size: 13px;
+    }
+    .spinner {
+      width: 15px; height: 15px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-brand">
+      <div class="brand-dot"></div>
+      <div class="brand-info">
+        <div class="location">마포 클럽하우스</div>
+        <h1>프리세일 판매 현황</h1>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="label">마지막 업데이트</div>
+      <div class="timestamp" id="updated-at">—</div>
+    </div>
+  </div>
+
+  <div class="section-label">섹션 1 &nbsp;·&nbsp; 상품별 판매 실적 vs 목표</div>
+
+  <div class="table-wrap" id="table-wrap">
+    <div class="state"><div class="spinner"></div><span>데이터 불러오는 중...</span></div>
+  </div>
+
+  <div class="refresh-wrap">
+    <span class="refresh-label">30초 자동 새로고침</span>
+    <div class="refresh-track"><div class="refresh-fill" id="refresh-fill"></div></div>
+  </div>
+
+  <div class="section-label" style="margin-top: 40px">섹션 2 &nbsp;·&nbsp; 일별 판매 추이</div>
+  <div class="s2-controls">
+    <div class="s2-filters" id="s2-filters"></div>
+    <div class="s2-metric">
+      <button class="metric-btn active" id="m-count"   onclick="setMetric('count')">건수</button>
+      <button class="metric-btn"        id="m-revenue" onclick="setMetric('revenue')">매출</button>
+    </div>
+  </div>
+  <div class="chart-wrap" id="s2-chart-wrap">
+    <canvas id="trend-chart"></canvas>
+  </div>
+
+  <div class="section-label" style="margin-top: 40px">섹션 3 &nbsp;·&nbsp; 결제 추이 &amp; 마감 예상</div>
+  <div class="s2-controls">
+    <div class="s2-filters" id="s3-filters"></div>
+    <div class="s2-metric">
+      <button class="metric-btn active" id="s3-m-count"   onclick="setS3Metric('count')">건수</button>
+      <button class="metric-btn"        id="s3-m-revenue" onclick="setS3Metric('revenue')">매출</button>
+    </div>
+  </div>
+  <div class="chart-wrap" style="height:300px; position:relative">
+    <div class="trend-ach" id="s3-ach">—</div>
+    <canvas id="s3-trend-chart"></canvas>
+  </div>
+  <div class="trend-stats" id="s3-stats"></div>
+
+  <script>
+    const REFRESH_MS = 30000;
+
+    // 카테고리별 차트 색상 (TAXONOMY 순서 일치)
+    const CAT_COLORS = {
+      'Package - 런포트 패키지':       '#3D7FFF',
+      'Package - 클럽하우스 패키지':   '#7AABFF',
+      'Access - 버핏그라운드 멤버십':  '#1FD49A',
+      'Access - 러닝스테이션 멤버십':  '#6EEBB0',
+      'Access+Contents - PT+BG12':    '#F5C842',
+      'Access+Contents - 팀버핏':     '#D4A030',
+      'Contents - PT':                '#FFA040',
+      'Contents - 사우나only':         '#E8720A',
+    };
+
+    var trendChart     = null;
+    var s2Metric       = 'count';
+    var s2Filter       = '전체';
+    var lastDailyStats = null;
+
+    function setMetric(m) {
+      s2Metric = m;
+      document.getElementById('m-count').classList.toggle('active',   m === 'count');
+      document.getElementById('m-revenue').classList.toggle('active', m === 'revenue');
+      if (lastDailyStats) buildChart(lastDailyStats);
+    }
+
+    function setS2Filter(catName) {
+      s2Filter = catName;
+      document.querySelectorAll('.filter-btn').forEach(function(b) {
+        var isActive = b.dataset.cat === catName;
+        b.classList.toggle('active', isActive);
+        if (b.dataset.cat !== '전체') {
+          b.style.backgroundColor = isActive ? CAT_COLORS[b.dataset.cat] : '';
+          b.style.color           = isActive ? '#fff' : CAT_COLORS[b.dataset.cat];
+        }
+      });
+      if (lastDailyStats) buildChart(lastDailyStats);
+    }
+
+    function makeFilterBtn(catName, isActive) {
+      var btn = document.createElement('button');
+      btn.className    = 'filter-btn' + (isActive ? ' active' : '');
+      btn.dataset.cat  = catName;
+      btn.textContent  = catName === '전체' ? '전체' : catName.split(' - ').slice(1).join(' - ');
+      if (catName !== '전체') {
+        btn.style.borderColor     = CAT_COLORS[catName];
+        btn.style.color           = isActive ? '#fff' : CAT_COLORS[catName];
+        btn.style.backgroundColor = isActive ? CAT_COLORS[catName] : '';
+      }
+      btn.onclick = function() { setS2Filter(catName); };
+      return btn;
+    }
+
+    function renderSection2(dailyStats) {
+      if (!dailyStats || dailyStats.length === 0) return;
+      lastDailyStats = dailyStats;
+
+      var container = document.getElementById('s2-filters');
+      if (!container.hasChildNodes()) {
+        container.appendChild(makeFilterBtn('전체', true));
+        Object.keys(CAT_COLORS).forEach(function(cat) {
+          container.appendChild(makeFilterBtn(cat, false));
+        });
+      }
+      buildChart(dailyStats);
+    }
+
+    function buildChart(dailyStats) {
+      // 첫 결제일 ~ 오늘까지 전체 날짜 범위 생성 (빈 날짜 포함)
+      var firstDate = new Date(dailyStats[0].date);
+      var lastDate  = new Date();
+      lastDate.setHours(0, 0, 0, 0);
+      var allDates = [];
+      var cur = new Date(firstDate);
+      while (cur <= lastDate) {
+        allDates.push(cur.toISOString().substring(0, 10));
+        cur.setDate(cur.getDate() + 1);
+      }
+      var dataByDate = {};
+      dailyStats.forEach(function(d) { dataByDate[d.date] = d; });
+
+      var labels  = allDates.map(function(d) { return d.substring(5); });
+      var metric  = s2Metric;
+      var isStack = s2Filter === '전체';
+      var datasets;
+
+      // 가로 스크롤: 바 1개당 최소 28px 보장
+      var wrap = document.getElementById('s2-chart-wrap');
+      var minWidth = Math.max(wrap.clientWidth - 40, allDates.length * 28);
+      var canvas = document.getElementById('trend-chart');
+      canvas.style.width  = minWidth + 'px';
+      canvas.style.height = '240px';
+
+      if (isStack) {
+        datasets = Object.keys(CAT_COLORS).map(function(cat) {
+          return {
+            label: cat.split(' - ').slice(1).join(' - '),
+            data: allDates.map(function(d) {
+              var entry = dataByDate[d];
+              return (entry && entry.byCategory[cat] && entry.byCategory[cat][metric]) || 0;
+            }),
+            backgroundColor: CAT_COLORS[cat],
+            borderRadius: 2, borderSkipped: false,
+          };
+        });
+      } else {
+        datasets = [{
+          label: s2Filter.split(' - ').slice(1).join(' - '),
+          data: allDates.map(function(d) {
+            var entry = dataByDate[d];
+            return (entry && entry.byCategory[s2Filter] && entry.byCategory[s2Filter][metric]) || 0;
+          }),
+          backgroundColor: CAT_COLORS[s2Filter],
+          borderRadius: 3, borderSkipped: false,
+        }];
+      }
+
+      var gridColor = 'rgba(255,255,255,0.04)';
+      var tickColor = '#3A4F6A';
+      var mono      = "'JetBrains Mono', monospace";
+
+      var opts = {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: isStack, position: 'bottom',
+            labels: { color: tickColor, font: { size: 10 }, boxWidth: 10, padding: 12 }
+          },
+          tooltip: {
+            mode: 'index',
+            callbacks: {
+              label: function(ctx) {
+                var v = ctx.parsed.y;
+                return ' ' + ctx.dataset.label + ': '
+                  + (metric === 'revenue' ? v.toLocaleString('ko-KR') + '원' : v + '건');
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            stacked: isStack,
+            grid: { color: gridColor },
+            ticks: { color: tickColor, font: { family: mono, size: 10 }, maxRotation: 45 }
+          },
+          y: {
+            stacked: isStack,
+            grid: { color: gridColor },
+            ticks: {
+              color: tickColor, font: { family: mono, size: 10 },
+              callback: metric === 'revenue'
+                ? function(v) { return (v / 10000).toFixed(0) + '만'; }
+                : undefined
+            }
+          }
+        }
+      };
+
+      if (trendChart) trendChart.destroy();
+      trendChart = new Chart(document.getElementById('trend-chart'), {
+        type: 'bar', data: { labels: labels, datasets: datasets }, options: opts
+      });
+      // 최신 날짜(오른쪽)로 자동 스크롤
+      wrap.scrollLeft = wrap.scrollWidth;
+    }
+
+    // ── 섹션 3: 누적 실적 vs 목표 vs 마감 예상 ──────────────────
+    const PRESALE_END = '2026-07-10';
+
+    var s3Chart        = null;
+    var s3Metric       = 'count';
+    var s3DailyStats   = null;
+    var s3TgtRevenue   = 0;
+    var s3TgtCount     = 0;
+    var s3Filter       = '전체';
+    var s3Categories   = [];
+
+    function setS3Filter(catName) {
+      s3Filter = catName;
+      document.querySelectorAll('#s3-filters .filter-btn').forEach(function(b) {
+        var isActive = b.dataset.cat === catName;
+        b.classList.toggle('active', isActive);
+        if (b.dataset.cat !== '전체') {
+          b.style.backgroundColor = isActive ? CAT_COLORS[b.dataset.cat] : '';
+          b.style.color           = isActive ? '#fff' : CAT_COLORS[b.dataset.cat];
+        }
+      });
+      if (s3DailyStats) buildTrendChart();
+    }
+
+    function makeS3FilterBtn(catName, isActive) {
+      var btn = document.createElement('button');
+      btn.className   = 'filter-btn' + (isActive ? ' active' : '');
+      btn.dataset.cat = catName;
+      btn.textContent = catName === '전체' ? '전체' : catName.split(' - ').slice(1).join(' - ');
+      if (catName !== '전체') {
+        btn.style.borderColor     = CAT_COLORS[catName];
+        btn.style.color           = isActive ? '#fff' : CAT_COLORS[catName];
+        btn.style.backgroundColor = isActive ? CAT_COLORS[catName] : '';
+      }
+      btn.onclick = function() { setS3Filter(catName); };
+      return btn;
+    }
+
+    function setS3Metric(m) {
+      s3Metric = m;
+      document.getElementById('s3-m-revenue').classList.toggle('active', m === 'revenue');
+      document.getElementById('s3-m-count').classList.toggle('active',   m === 'count');
+      if (s3DailyStats) buildTrendChart();
+    }
+
+    function renderSection3(dailyStats, categories, tgtRevenue, tgtCount) {
+      if (!dailyStats || !dailyStats.length) return;
+      s3DailyStats  = dailyStats;
+      s3Categories  = categories;
+      s3TgtRevenue  = tgtRevenue;
+      s3TgtCount    = tgtCount;
+
+      var container = document.getElementById('s3-filters');
+      if (!container.hasChildNodes()) {
+        container.appendChild(makeS3FilterBtn('전체', true));
+        Object.keys(CAT_COLORS).forEach(function(cat) {
+          container.appendChild(makeS3FilterBtn(cat, false));
+        });
+      }
+      buildTrendChart();
+    }
+
+    function buildTrendChart() {
+      var metric = s3Metric;
+      var totalGoal;
+      if (s3Filter === '전체') {
+        totalGoal = metric === 'revenue' ? s3TgtRevenue : s3TgtCount;
+      } else {
+        var catObj = null;
+        for (var ci = 0; ci < s3Categories.length; ci++) {
+          if (s3Categories[ci].category === s3Filter) { catObj = s3Categories[ci]; break; }
+        }
+        totalGoal = catObj
+          ? (metric === 'revenue' ? catObj.targetRevenue : catObj.targetCount) || 0
+          : 0;
+      }
+
+      // 날짜 범위: 첫 데이터 날짜 ~ PRESALE_END
+      var allDates = [];
+      var d = new Date(s3DailyStats[0].date);
+      var endD = new Date(PRESALE_END);
+      while (d <= endD) {
+        allDates.push(d.toISOString().substring(0, 10));
+        d.setDate(d.getDate() + 1);
+      }
+
+      // 일별 totals 맵 (필터 적용)
+      var dailyMap = {};
+      s3DailyStats.forEach(function(item) {
+        var total = 0;
+        if (s3Filter === '전체') {
+          Object.keys(item.byCategory).forEach(function(cat) {
+            total += (item.byCategory[cat][metric] || 0);
+          });
+        } else {
+          total = (item.byCategory[s3Filter] && item.byCategory[s3Filter][metric]) || 0;
+        }
+        dailyMap[item.date] = total;
+      });
+
+      // 오늘 (UTC 기준, KST +9h 보정)
+      var now = new Date();
+      now.setHours(now.getHours() + 9);
+      var today = now.toISOString().substring(0, 10);
+
+      // 누적 실적 (오늘까지)
+      var cumActual  = [];
+      var runSum     = 0;
+      var currentVal = 0;
+      allDates.forEach(function(dt) {
+        if (dt <= today) {
+          runSum += (dailyMap[dt] || 0);
+          cumActual.push(runSum);
+          currentVal = runSum;
+        } else {
+          cumActual.push(null);
+        }
+      });
+
+      // 목표선 (선형)
+      var totalDays = allDates.length - 1;
+      var goalLine  = allDates.map(function(dt, i) {
+        return Math.round((i / totalDays) * totalGoal);
+      });
+
+      // 마감 예상 (오늘 이후 선형 외삽)
+      var todayIdx     = allDates.indexOf(today);
+      var dailyRate    = todayIdx > 0 ? currentVal / (todayIdx + 1) : 0;
+      var forecastLine = allDates.map(function(dt, i) {
+        if (i < todayIdx) return null;
+        return Math.round(currentVal + dailyRate * (i - todayIdx));
+      });
+      var forecastEnd = forecastLine[forecastLine.length - 1] || 0;
+
+      // 달성률 + 통계
+      var achPct = totalGoal > 0 ? (currentVal / totalGoal * 100).toFixed(1) : '—';
+      document.getElementById('s3-ach').textContent = achPct + '%';
+
+      var fmt = metric === 'revenue'
+        ? function(v) { return (v / 100000000).toFixed(2) + '억'; }
+        : function(v) { return v.toLocaleString('ko-KR') + '명'; };
+
+      document.getElementById('s3-stats').innerHTML =
+        '<div class="trend-stat"><div class="trend-stat-label">현재</div>'
+        + '<div class="trend-stat-value blue">' + fmt(currentVal) + '</div></div>'
+        + '<div class="trend-stat"><div class="trend-stat-label">마감 예상</div>'
+        + '<div class="trend-stat-value orange">' + fmt(forecastEnd) + '</div></div>'
+        + '<div class="trend-stat"><div class="trend-stat-label">최종 목표</div>'
+        + '<div class="trend-stat-value">' + fmt(totalGoal) + '</div></div>';
+
+      var labels    = allDates.map(function(dt) { return dt.substring(5); });
+      var gridColor = 'rgba(255,255,255,0.04)';
+      var tickColor = '#3A4F6A';
+      var mono      = "'JetBrains Mono', monospace";
+      var yFmt      = metric === 'revenue'
+        ? function(v) { return (v / 100000000).toFixed(1) + '억'; }
+        : function(v) { return v.toLocaleString('ko-KR'); };
+
+      var todayLinePlugin = {
+        id: 'todayLine',
+        afterDraw: function(chart) {
+          var idx = allDates.indexOf(today);
+          if (idx < 0) return;
+          var xScale = chart.scales.x;
+          var yScale = chart.scales.y;
+          var ctx    = chart.ctx;
+          var x = xScale.getPixelForValue(idx);
+          ctx.save();
+          ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+          ctx.setLineDash([4, 4]);
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x, yScale.top);
+          ctx.lineTo(x, yScale.bottom);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = 'rgba(255,255,255,0.4)';
+          ctx.font = '10px "Noto Sans KR"';
+          ctx.fillText('오늘', x + 4, yScale.top + 14);
+          ctx.restore();
+        }
+      };
+
+      if (s3Chart) s3Chart.destroy();
+      s3Chart = new Chart(document.getElementById('s3-trend-chart'), {
+        type: 'line',
+        plugins: [todayLinePlugin],
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: '목표',
+              data: goalLine,
+              borderColor: 'rgba(150,150,150,0.6)',
+              borderDash: [6, 4], borderWidth: 1.5,
+              pointRadius: 0, fill: false, tension: 0,
+            },
+            {
+              label: '누적 실적',
+              data: cumActual,
+              borderColor: '#3D7FFF', borderWidth: 2,
+              pointRadius: 0, fill: false, tension: 0.3,
+              spanGaps: false,
+            },
+            {
+              label: '마감 예상',
+              data: forecastLine,
+              borderColor: '#F5A623',
+              borderDash: [6, 4], borderWidth: 1.5,
+              pointRadius: 0, fill: false, tension: 0,
+              spanGaps: false,
+            },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true, position: 'bottom',
+              labels: {
+                color: tickColor, font: { size: 10 }, boxWidth: 20, padding: 16,
+                generateLabels: function() {
+                  return [
+                    { text: '목표',     strokeStyle: 'rgba(150,150,150,0.6)', lineDash: [6,4], lineWidth: 1.5, fillStyle: 'transparent', fontColor: tickColor },
+                    { text: '누적 실적', strokeStyle: '#3D7FFF', lineWidth: 2, fillStyle: 'transparent', fontColor: tickColor },
+                    { text: '마감 예상', strokeStyle: '#F5A623', lineDash: [6,4], lineWidth: 1.5, fillStyle: 'transparent', fontColor: tickColor },
+                  ];
+                }
+              }
+            },
+            tooltip: {
+              mode: 'index', intersect: false,
+              callbacks: {
+                label: function(ctx) {
+                  if (ctx.parsed.y === null) return null;
+                  return ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y);
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: gridColor },
+              ticks: {
+                color: tickColor, font: { family: mono, size: 10 }, maxRotation: 0,
+                callback: function(val, idx) {
+                  return idx % 7 === 0 ? this.getLabelForValue(val) : null;
+                }
+              }
+            },
+            y: {
+              grid: { color: gridColor },
+              ticks: { color: tickColor, font: { family: mono, size: 10 }, callback: yFmt }
+            }
+          }
+        }
+      });
+    }
+    // ────────────────────────────────────────────────────────────
+
+    // 실적 집계 전 카테고리 — 실적 컬럼에 (미집계중) 표기
+    const PENDING_CATEGORIES = new Set([
+      'Contents - PT체험권',
+      'option',
+    ]);
+
+    // "기타" 대분류로 표시할 카테고리
+    const GITA_CATEGORIES = new Set([
+      'Contents - PT체험권',
+      'option',
+    ]);
+
+    // 전체 건수 합산 제외 카테고리 (금액은 전체 포함)
+    const EXCLUDE_FROM_TOTAL = new Set([
+      'Contents - PT',
+      'Contents - 사우나only',
+      'Contents - PT체험권',
+      'option',
+    ]);
+
+    function getBand(categoryName) {
+      if (GITA_CATEGORIES.has(categoryName)) return 'band-gita';
+      const prefix = categoryName.split(' - ')[0].toLowerCase();
+      if (prefix === 'package')          return 'band-package';
+      if (prefix === 'access')           return 'band-access';
+      if (prefix === 'access+contents')  return 'band-access-contents';
+      if (prefix === 'contents')         return 'band-contents';
+      return '';
+    }
+
+    function fmtN(n) {
+      return (n !== null && n !== undefined) ? n.toLocaleString('ko-KR') : null;
+    }
+
+    function dash() {
+      return '<span style="color:var(--text-dim);font-family:\'JetBrains Mono\',monospace">—</span>';
+    }
+
+    function pending() {
+      return '<span class="pending-cell">(미집계중)</span>';
+    }
+
+    function colorClass(pct) {
+      if (pct >= 100) return 'done';
+      if (pct >= 70)  return 'high';
+      if (pct >= 30)  return 'mid';
+      if (pct >= 10)  return 'early';
+      return 'none';
+    }
+
+    function progressCell(actual, target) {
+      if (!target) return dash();
+      const pct    = (actual / target) * 100;
+      const cls    = colorClass(pct);
+      const fillW  = Math.min(pct, 100).toFixed(1);
+      return '<div class="ach">'
+        + '<span class="pct c-' + cls + '">' + pct.toFixed(1) + '%</span>'
+        + '<div class="bar-track"><div class="bar-fill c-' + cls + '" style="width:' + fillW + '%"></div></div>'
+        + '</div>';
+    }
+
+    function render(data) {
+      // Pass 1: 집계 (건수는 EXCLUDE_FROM_TOTAL 제외, 금액은 전체 포함)
+      var totalCount = 0, totalRevenue = 0;
+      var totalTgtCount = 0, totalTgtRevenue = 0;
+
+      data.categories.forEach(function(cat) {
+        var hasTgtCount   = cat.targetCount   !== null;
+        var hasTgtRevenue = cat.targetRevenue !== null && cat.targetRevenue > 0;
+        var inTotalCount  = !EXCLUDE_FROM_TOTAL.has(cat.category);
+
+        if (hasTgtRevenue) { totalTgtRevenue += cat.targetRevenue; }
+        totalRevenue += cat.revenue;
+        if (inTotalCount) {
+          if (hasTgtCount) { totalTgtCount += cat.targetCount; }
+          totalCount += cat.count;
+        }
+      });
+
+      // Total 행 HTML (최상단 배치)
+      var totalHtml = '<tr class="totals-row">'
+        + '<td><span class="totals-label">Total</span></td>'
+        + '<td class="n strong">' + fmtN(totalTgtCount)
+          + '<div class="total-note">멤버십 기준</div></td>'
+        + '<td class="n strong">' + fmtN(totalCount)
+          + '<div class="total-note">PT·사우나·체험권 제외</div></td>'
+        + '<td>' + progressCell(totalCount, totalTgtCount) + '</td>'
+        + '<td class="n strong">' + fmtN(totalTgtRevenue) + '</td>'
+        + '<td class="n strong">' + fmtN(totalRevenue) + '</td>'
+        + '<td>' + progressCell(totalRevenue, totalTgtRevenue) + '</td>'
+        + '</tr>';
+
+      // Pass 2: 카테고리·상품 행 HTML
+      var catHtml = '';
+      data.categories.forEach(function(cat, catIndex) {
+        var hasTgtCount   = cat.targetCount   !== null;
+        var hasTgtRevenue = cat.targetRevenue !== null && cat.targetRevenue > 0;
+        var band          = getBand(cat.category);
+        var catId         = 'cat-' + catIndex;
+        var parts         = cat.category.split(' - ');
+        var prefix        = parts[0];
+        var subName       = parts.slice(1).join(' - ');
+
+        var isPending      = PENDING_CATEGORIES.has(cat.category);
+        var isGita         = GITA_CATEGORIES.has(cat.category);
+        var displayPrefix  = isGita ? '기타' : prefix;
+        var displaySubName = cat.category === 'option' ? '옵션상품' : subName;
+
+        var tgtCountCell = hasTgtCount ? fmtN(cat.targetCount) : dash();
+        if (cat.category === 'Access - 버핏그라운드 멤버십') {
+          tgtCountCell += '<div class="total-note">PT+BG12 제외</div>';
+        }
+
+        var actualCountCell    = isPending ? pending() : (cat.count   > 0 ? fmtN(cat.count)   : dash());
+        var actualRevenueCell  = isPending ? pending() : (cat.revenue > 0 ? fmtN(cat.revenue) : dash());
+        var countProgCell      = isPending ? dash()    : progressCell(cat.count,   cat.targetCount);
+        var revenueProgCell    = isPending ? dash()    : progressCell(cat.revenue, cat.targetRevenue);
+
+        catHtml += '<tr class="cat-row ' + band + '" data-cat-id="' + catId + '">'
+          + '<td class="col-name"><span class="cat-name">'
+          + '<span class="toggle-icon">▶</span>'
+          + '<span class="cat-text">'
+          + '<span class="cat-prefix">' + displayPrefix + '</span>'
+          + displaySubName
+          + '</span></span></td>'
+          + '<td class="n">'        + tgtCountCell       + '</td>'
+          + '<td class="n strong">' + actualCountCell    + '</td>'
+          + '<td>'                  + countProgCell      + '</td>'
+          + '<td class="n">'        + (hasTgtRevenue ? fmtN(cat.targetRevenue) : dash()) + '</td>'
+          + '<td class="n strong">' + actualRevenueCell  + '</td>'
+          + '<td>'                  + revenueProgCell    + '</td>'
+          + '</tr>';
+
+        cat.products.forEach(function(prod, i) {
+          var cls = 'prod-row'
+            + (prod.count === 0 ? ' zero' : '')
+            + (i === cat.products.length - 1 ? ' last-in-group' : '');
+          catHtml += '<tr class="' + cls + ' ' + band + '" data-cat-parent="' + catId + '" style="display:none">'
+            + '<td class="col-name"><span class="prod-name">└ ' + prod.name + '</span></td>'
+            + '<td class="n dim">' + dash() + '</td>'
+            + '<td class="n">'    + (prod.count   > 0 ? fmtN(prod.count)   : dash()) + '</td>'
+            + '<td class="n dim">' + dash() + '</td>'
+            + '<td class="n dim">' + dash() + '</td>'
+            + '<td class="n">'    + (prod.revenue > 0 ? fmtN(prod.revenue) : dash()) + '</td>'
+            + '<td class="n dim">' + dash() + '</td>'
+            + '</tr>';
+        });
+      });
+
+      document.getElementById('table-wrap').innerHTML =
+        '<table>'
+        + '<thead><tr>'
+        + '<th class="col-name">판매상품</th>'
+        + '<th>목표건수</th><th>실적건수</th><th class="col-prog">건수 달성률</th>'
+        + '<th>목표금액 (원)<span class="vat-tag">VAT+</span></th><th>실적금액 (원)<span class="vat-tag">VAT+</span></th><th class="col-prog">금액 달성률</th>'
+        + '</tr></thead>'
+        + '<tbody>' + totalHtml + catHtml + '</tbody>'
+        + '</table>';
+
+      if (data.updatedAt) {
+        document.getElementById('updated-at').textContent =
+          new Date(data.updatedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
+      }
+
+      renderSection2(data.dailyStats);
+      renderSection3(data.dailyStats, data.categories, totalTgtRevenue, totalTgtCount);
+    }
+
+    // 세분류 토글 (이벤트 위임 - table-wrap은 교체되지 않으므로 한 번만 등록)
+    document.getElementById('table-wrap').addEventListener('click', function(e) {
+      var row = e.target.closest('tr.cat-row');
+      if (!row) return;
+      var catId = row.dataset.catId;
+      var isExpanded = row.classList.toggle('expanded');
+      document.querySelectorAll('[data-cat-parent="' + catId + '"]').forEach(function(r) {
+        r.style.display = isExpanded ? '' : 'none';
+      });
+    });
+
+    var SCRIPT_URL = 'https://script.google.com/a/macros/butfitseoul.com/s/AKfycbwrqSx4JIFCbq__IZGVQuVGK4aGaIYcogvWVULTQmLgTXcoPPre7uIPfKs1xG4_qtk/exec';
+
+    function load() {
+      fetch(SCRIPT_URL)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          try {
+            if (data.error) {
+              document.getElementById('table-wrap').innerHTML =
+                '<div class="state">⚠️ &nbsp;' + data.error + '</div>';
+              return;
+            }
+            render(data);
+          } catch(e) {
+            document.getElementById('table-wrap').innerHTML =
+              '<div class="state">⚠️ &nbsp;파싱 오류: ' + e.message + '</div>';
+          }
+        })
+        .catch(function(err) {
+          document.getElementById('table-wrap').innerHTML =
+            '<div class="state">⚠️ &nbsp;로드 실패: ' + (err.message || err) + '</div>';
+        });
+    }
+
+    function startRefreshBar() {
+      var fill = document.getElementById('refresh-fill');
+      fill.style.transition = 'none';
+      fill.style.width = '0%';
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          fill.style.transition = 'width ' + REFRESH_MS + 'ms linear';
+          fill.style.width = '100%';
+        });
+      });
+    }
+
+    (function cycle() {
+      load();
+      startRefreshBar();
+      setTimeout(cycle, REFRESH_MS);
+    })();
+  </script>
+</body>
+</html>
