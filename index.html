@@ -311,6 +311,8 @@
       position: relative; height: 280px;
     }
     #s2-chart-wrap { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+    #s2-chart-inner { height: 240px; }
+    #trend-chart { cursor: grab; }
 
     .trend-stats {
       display: flex; gap: 32px; margin-top: 20px;
@@ -417,7 +419,9 @@
     </div>
   </div>
   <div class="chart-wrap" id="s2-chart-wrap">
-    <canvas id="trend-chart"></canvas>
+    <div id="s2-chart-inner">
+      <canvas id="trend-chart"></canvas>
+    </div>
   </div>
 
   <div class="section-label" style="margin-top: 40px">섹션 3 &nbsp;·&nbsp; 결제 추이 &amp; 마감 예상</div>
@@ -543,9 +547,10 @@
       var isMobile = window.innerWidth <= 640;
       var barW = isMobile ? 36 : 28;
       var minWidth = Math.max(wrap.clientWidth - 40, allDates.length * barW);
+      var inner  = document.getElementById('s2-chart-inner');
       var canvas = document.getElementById('trend-chart');
-      canvas.style.width  = minWidth + 'px';
-      canvas.style.height = '240px';
+      inner.style.width = minWidth + 'px';
+      // height는 CSS #s2-chart-inner { height: 240px } 로 처리
 
       if (isStack) {
         datasets = Object.keys(CAT_COLORS).map(function(cat) {
@@ -1161,6 +1166,41 @@
       load();
       startRefreshBar();
       setTimeout(cycle, REFRESH_MS);
+    })();
+
+    // 섹션2 차트 캔버스 스와이프/드래그 — Chart.js touch-action:none 우회
+    (function() {
+      var c = document.getElementById('trend-chart');
+      var w = document.getElementById('s2-chart-wrap');
+
+      // 터치 (모바일 스와이프)
+      var tStartX = 0, tScrollLeft = 0;
+      c.addEventListener('touchstart', function(e) {
+        tStartX     = e.touches[0].clientX;
+        tScrollLeft = w.scrollLeft;
+      }, { passive: true });
+      c.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        w.scrollLeft = tScrollLeft + (tStartX - e.touches[0].clientX);
+      }, { passive: false });
+
+      // 마우스 드래그 (데스크탑)
+      var mStartX = 0, mScrollLeft = 0, dragging = false;
+      c.addEventListener('mousedown', function(e) {
+        dragging = true; mStartX = e.clientX; mScrollLeft = w.scrollLeft;
+        c.style.cursor = 'grabbing';
+        if (trendChart) { trendChart.options.plugins.tooltip.enabled = false; trendChart.update('none'); }
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        w.scrollLeft = mScrollLeft - (e.clientX - mStartX);
+      });
+      document.addEventListener('mouseup', function() {
+        if (!dragging) return;
+        dragging = false; c.style.cursor = 'grab';
+        if (trendChart) { trendChart.options.plugins.tooltip.enabled = true; trendChart.update('none'); }
+      });
     })();
   </script>
 </body>
