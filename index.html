@@ -636,7 +636,7 @@
     function buildChart(dailyStats) {
       // 첫 결제일 ~ 오늘까지 전체 날짜 범위 생성 (빈 날짜 포함)
       var firstDate = new Date(dailyStats[0].date);
-      var lastDate  = new Date();
+      var lastDate  = new Date(PRESALE_END);
       var allDates = [];
       var cur = new Date(firstDate);
       while (cur <= lastDate) {
