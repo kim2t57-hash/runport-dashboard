@@ -368,7 +368,8 @@
       text-transform: uppercase; color: var(--text-dim);
       margin-bottom: 8px;
     }
-    .cross-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .cross-table { width: 100%; min-width: 0; border-collapse: collapse; font-size: 13px; }
+    .cross-table td:first-child { word-break: keep-all; }
     .cross-table th {
       text-align: left; padding: 6px 8px;
       font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
