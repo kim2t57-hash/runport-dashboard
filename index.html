@@ -948,6 +948,7 @@
         var total = 0;
         if (s3Filter === '전체') {
           Object.keys(item.byCategory).forEach(function(cat) {
+            if (metric === 'count' && EXCLUDE_FROM_TOTAL.has(cat)) return;
             total += (item.byCategory[cat][metric] || 0);
           });
         } else {
