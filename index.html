@@ -594,7 +594,7 @@
       var btn = document.createElement('button');
       btn.className    = 'filter-btn' + (isActive ? ' active' : '');
       btn.dataset.cat  = catName;
-      btn.textContent  = catName === '전체' ? '전체' : catName.split(' - ').slice(1).join(' - ');
+      btn.textContent  = catName === '전체' ? '전체' : catName === 'option' ? '옵션상품' : catName.split(' - ').slice(1).join(' - ');
       if (catName !== '전체') {
         btn.style.borderColor     = CAT_COLORS[catName];
         btn.style.color           = isActive ? '#fff' : CAT_COLORS[catName];
@@ -915,7 +915,7 @@
       var btn = document.createElement('button');
       btn.className   = 'filter-btn' + (isActive ? ' active' : '');
       btn.dataset.cat = catName;
-      btn.textContent = catName === '전체' ? '전체' : catName.split(' - ').slice(1).join(' - ');
+      btn.textContent = catName === '전체' ? '전체' : catName === 'option' ? '옵션상품' : catName.split(' - ').slice(1).join(' - ');
       if (catName !== '전체') {
         btn.style.borderColor     = CAT_COLORS[catName];
         btn.style.color           = isActive ? '#fff' : CAT_COLORS[catName];
