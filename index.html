@@ -326,9 +326,11 @@
 
     /* ── 섹션2 타임라인 ── */
     #s2-timeline { position: relative; height: 68px; border-top: 1px solid rgba(255,255,255,0.06); }
-    .tl-row { position: relative; height: 20px; margin-top: 2px; }
+    .tl-row { position: relative; height: 20px; margin-top: 2px; display: flex; align-items: center; }
     .tl-brand-label {
-      position: absolute; top: 0; height: 100%;
+      position: sticky; left: 0; z-index: 20;
+      background: var(--surface);
+      height: 20px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: flex-end;
       padding-right: 6px;
       font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
@@ -537,8 +539,8 @@
         { start: '2026-07-01',  end: '2026-07-10', label: '4차' },
       ]},
       { brand: 'RP', color: '#3D7FFF', phases: [
-        { start: '2026-05-06',  end: '2026-05-11', label: '1차' },
-        { start: '2026-05-12',  end: '2026-05-25', label: '2차' },
+        { start: '2026-05-06',  end: '2026-05-12', label: '1차' },
+        { start: '2026-05-13',  end: '2026-05-25', label: '2차' },
         { start: '2026-05-26',  end: '2026-06-07', label: '3차' },
         { start: '2026-06-08',  end: '2026-06-15', label: '4차' },
         { start: '2026-06-16',  end: '2026-07-10', label: '5차' },
@@ -813,8 +815,14 @@
         options: opts, plugins: [stackTotalsPlugin, todayLinePluginS2]
       });
       buildTimeline(allDates);
-      // 최신 날짜(오른쪽)로 자동 스크롤
-      wrap.scrollLeft = wrap.scrollWidth;
+      // 오늘 날짜가 viewport 중앙에 오도록 자동 스크롤
+      var todayIdxScroll = allDates.indexOf(todayS2);
+      if (todayIdxScroll >= 0) {
+        var todayXPos = trendChart.scales.x.getPixelForValue(todayIdxScroll);
+        wrap.scrollLeft = Math.max(0, todayXPos - wrap.clientWidth / 2);
+      } else {
+        wrap.scrollLeft = wrap.scrollWidth;
+      }
     }
 
     function buildTimeline(allDates) {
