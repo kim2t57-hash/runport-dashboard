@@ -518,16 +518,12 @@
   </div>
 
   <div class="section-label" style="margin-top: 40px">섹션 5 &nbsp;·&nbsp; 런포트 패키지 환불 현황</div>
-  <div id="s5-summary" style="margin-bottom: 12px"></div>
   <div class="s2-controls">
     <div class="s2-filters" id="s5-filters"></div>
   </div>
-  <div class="chart-wrap" id="s5-chart-wrap">
-    <div id="s5-scroll-inner">
-      <div id="s5-chart-inner" style="height:220px">
-        <canvas id="s5-chart"></canvas>
-      </div>
-    </div>
+  <div class="scoreboard" id="s5-stats"></div>
+  <div class="chart-wrap" style="height:300px">
+    <canvas id="s5-chart"></canvas>
   </div>
   <div class="s4-tables" id="s5-prod-tables"></div>
 
@@ -1435,7 +1431,9 @@
       if (daily.length === 0) return;
 
       var firstDate = new Date(daily[0].date);
-      var lastDate  = new Date(PRESALE_END);
+      var nowKST5 = new Date(); nowKST5.setHours(nowKST5.getHours() + 9);
+      var todayS5Str = nowKST5.toISOString().substring(0, 10);
+      var lastDate  = new Date(todayS5Str);
       var allDates  = [];
       var cur = new Date(firstDate);
       while (cur <= lastDate) {
@@ -1446,12 +1444,6 @@
       daily.forEach(function(d) { dataByDate[d.date] = d; });
 
       var labels = allDates.map(function(d) { return d.substring(5); });
-
-      var wrap = document.getElementById('s5-chart-wrap');
-      var isMobile = window.innerWidth <= 640;
-      var barW = isMobile ? 36 : 28;
-      var minWidth = Math.max(wrap.clientWidth - 40, allDates.length * barW);
-      document.getElementById('s5-scroll-inner').style.width = minWidth + 'px';
 
       var datasets;
       var isStack = s5Filter === '전체';
@@ -1483,12 +1475,10 @@
       var tickColor = '#3A4F6A';
       var mono      = "'JetBrains Mono', monospace";
 
-      var nowS5 = new Date(); nowS5.setHours(nowS5.getHours() + 9);
-      var todayS5 = nowS5.toISOString().substring(0, 10);
       var todayLinePluginS5 = {
         id: 'todayLineS5',
         afterDraw: function(chart) {
-          var idx = allDates.indexOf(todayS5);
+          var idx = allDates.indexOf(todayS5Str);
           if (idx < 0) return;
           var xScale = chart.scales.x;
           var yScale = chart.scales.y;
@@ -1573,8 +1563,22 @@
       var byCat = d.byCat || {};
       var rpCount = (byCat['Package - 런포트 패키지']    && byCat['Package - 런포트 패키지'].count)    || 0;
       var chCount = (byCat['Package - 클럽하우스 패키지'] && byCat['Package - 클럽하우스 패키지'].count) || 0;
-      document.getElementById('s5-summary').textContent =
-        '총 ' + (d.total || 0) + '건 · 런포트 패키지 ' + rpCount + '건 · 클럽하우스 패키지 ' + chCount + '건';
+      var total = d.total || 0;
+      document.getElementById('s5-stats').innerHTML =
+        '<div class="sb-cell">'
+          + '<div class="sb-label">런포트 패키지</div>'
+          + '<div class="sb-value sb-blue">' + rpCount + '건</div>'
+        + '</div>'
+        + '<div class="sb-divider"></div>'
+        + '<div class="sb-cell">'
+          + '<div class="sb-label">클럽하우스 패키지</div>'
+          + '<div class="sb-value sb-blue">' + chCount + '건</div>'
+        + '</div>'
+        + '<div class="sb-divider"></div>'
+        + '<div class="sb-cell">'
+          + '<div class="sb-label">총 환불</div>'
+          + '<div class="sb-value">' + total + '건</div>'
+        + '</div>';
 
       var filterContainer = document.getElementById('s5-filters');
       if (!filterContainer.hasChildNodes()) {
@@ -1595,8 +1599,10 @@
       if (d.dailyRefunds && d.dailyRefunds.length > 0) {
         buildS5Chart();
       } else {
-        document.getElementById('s5-chart-inner').innerHTML =
-          '<div style="color:#3A4F6A;padding:24px;text-align:center">환불 데이터 없음</div>';
+        var cv = document.getElementById('s5-chart');
+        cv.style.display = 'none';
+        cv.insertAdjacentHTML('afterend',
+          '<div style="color:#3A4F6A;padding:24px;text-align:center">환불 데이터 없음</div>');
       }
       renderS5ProdTable();
     }
@@ -1683,36 +1689,6 @@
         if (!dragging) return;
         dragging = false; c.style.cursor = 'grab';
         if (trendChart) { trendChart.options.plugins.tooltip.enabled = true; trendChart.update('none'); }
-      });
-    })();
-    // 섹션5 차트 캔버스 스와이프/드래그
-    (function() {
-      var c = document.getElementById('s5-chart');
-      var w = document.getElementById('s5-chart-wrap');
-      var tStartX = 0, tScrollLeft = 0;
-      c.addEventListener('touchstart', function(e) {
-        tStartX     = e.touches[0].clientX;
-        tScrollLeft = w.scrollLeft;
-      }, { passive: true });
-      c.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-        w.scrollLeft = tScrollLeft + (tStartX - e.touches[0].clientX);
-      }, { passive: false });
-      var mStartX = 0, mScrollLeft = 0, dragging = false;
-      c.addEventListener('mousedown', function(e) {
-        dragging = true; mStartX = e.clientX; mScrollLeft = w.scrollLeft;
-        c.style.cursor = 'grabbing';
-        if (s5Chart) { s5Chart.options.plugins.tooltip.enabled = false; s5Chart.update('none'); }
-        e.preventDefault();
-      });
-      document.addEventListener('mousemove', function(e) {
-        if (!dragging) return;
-        w.scrollLeft = mScrollLeft - (e.clientX - mStartX);
-      });
-      document.addEventListener('mouseup', function() {
-        if (!dragging) return;
-        dragging = false; c.style.cursor = 'grab';
-        if (s5Chart) { s5Chart.options.plugins.tooltip.enabled = true; s5Chart.update('none'); }
       });
     })();
   </script>
