@@ -710,6 +710,36 @@
       var tickColor = '#3A4F6A';
       var mono      = "'JetBrains Mono', monospace";
 
+      // 오늘 날짜 (KST +9h 보정)
+      var nowS2 = new Date(); nowS2.setHours(nowS2.getHours() + 9);
+      var todayS2 = nowS2.toISOString().substring(0, 10);
+
+      var todayLinePluginS2 = {
+        id: 'todayLineS2',
+        afterDraw: function(chart) {
+          var idx = allDates.indexOf(todayS2);
+          if (idx < 0) return;
+          var xScale = chart.scales.x;
+          var yScale = chart.scales.y;
+          var ctx2   = chart.ctx;
+          var x = xScale.getPixelForValue(idx);
+          ctx2.save();
+          ctx2.strokeStyle = 'rgba(255,90,80,0.65)';
+          ctx2.setLineDash([4, 4]);
+          ctx2.lineWidth = 1;
+          ctx2.beginPath();
+          ctx2.moveTo(x, yScale.top);
+          ctx2.lineTo(x, yScale.bottom);
+          ctx2.stroke();
+          ctx2.setLineDash([]);
+          ctx2.fillStyle = 'rgba(255,110,100,0.9)';
+          ctx2.font = '10px "Noto Sans KR"';
+          ctx2.textAlign = 'left';
+          ctx2.fillText('오늘', x + 4, yScale.top + 14);
+          ctx2.restore();
+        }
+      };
+
       // 합계 레이블 플러그인
       var stackTotalsPlugin = {
         id: 'stackTotals',
@@ -780,7 +810,7 @@
       if (trendChart) trendChart.destroy();
       trendChart = new Chart(document.getElementById('trend-chart'), {
         type: 'bar', data: { labels: labels, datasets: datasets },
-        options: opts, plugins: [stackTotalsPlugin]
+        options: opts, plugins: [stackTotalsPlugin, todayLinePluginS2]
       });
       buildTimeline(allDates);
       // 최신 날짜(오른쪽)로 자동 스크롤
@@ -1037,7 +1067,7 @@
           var ctx    = chart.ctx;
           var x = xScale.getPixelForValue(idx);
           ctx.save();
-          ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+          ctx.strokeStyle = 'rgba(255,90,80,0.65)';
           ctx.setLineDash([4, 4]);
           ctx.lineWidth = 1;
           ctx.beginPath();
@@ -1045,7 +1075,7 @@
           ctx.lineTo(x, yScale.bottom);
           ctx.stroke();
           ctx.setLineDash([]);
-          ctx.fillStyle = 'rgba(255,255,255,0.4)';
+          ctx.fillStyle = 'rgba(255,110,100,0.9)';
           ctx.font = '10px "Noto Sans KR"';
           ctx.fillText('오늘', x + 4, yScale.top + 14);
           ctx.restore();
