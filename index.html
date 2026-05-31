@@ -467,7 +467,20 @@
     <div class="refresh-track"><div class="refresh-fill" id="refresh-fill"></div></div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px">섹션 2 &nbsp;·&nbsp; 일별 판매 추이</div>
+  <div class="section-label" style="margin-top: 40px">섹션 2 &nbsp;·&nbsp; 결제 추이 &amp; 마감 예상</div>
+  <div class="s2-controls">
+    <div class="s2-filters" id="s3-filters"></div>
+    <div class="s2-metric">
+      <button class="metric-btn active" id="s3-m-count"   onclick="setS3Metric('count')">건수</button>
+      <button class="metric-btn"        id="s3-m-revenue" onclick="setS3Metric('revenue')">매출</button>
+    </div>
+  </div>
+  <div class="scoreboard" id="s3-stats"></div>
+  <div class="chart-wrap" style="height:300px">
+    <canvas id="s3-trend-chart"></canvas>
+  </div>
+
+  <div class="section-label" style="margin-top: 40px">섹션 3 &nbsp;·&nbsp; 일별 판매 추이</div>
   <div class="s2-controls">
     <div class="s2-filters" id="s2-filters"></div>
     <div class="s2-metric">
@@ -482,19 +495,6 @@
       </div>
       <div id="s2-timeline"></div>
     </div>
-  </div>
-
-  <div class="section-label" style="margin-top: 40px">섹션 3 &nbsp;·&nbsp; 결제 추이 &amp; 마감 예상</div>
-  <div class="s2-controls">
-    <div class="s2-filters" id="s3-filters"></div>
-    <div class="s2-metric">
-      <button class="metric-btn active" id="s3-m-count"   onclick="setS3Metric('count')">건수</button>
-      <button class="metric-btn"        id="s3-m-revenue" onclick="setS3Metric('revenue')">매출</button>
-    </div>
-  </div>
-  <div class="scoreboard" id="s3-stats"></div>
-  <div class="chart-wrap" style="height:300px">
-    <canvas id="s3-trend-chart"></canvas>
   </div>
 
   <div class="section-label" style="margin-top: 40px">섹션 4 &nbsp;·&nbsp; 런포트 패키지 환불 현황</div>
