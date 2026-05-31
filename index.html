@@ -517,6 +517,20 @@
     </div>
   </div>
 
+  <div class="section-label" style="margin-top: 40px">섹션 5 &nbsp;·&nbsp; 런포트 패키지 환불 현황</div>
+  <div id="s5-summary" style="margin-bottom: 12px"></div>
+  <div class="s2-controls">
+    <div class="s2-filters" id="s5-filters"></div>
+  </div>
+  <div class="chart-wrap" id="s5-chart-wrap">
+    <div id="s5-scroll-inner">
+      <div id="s5-chart-inner" style="height:220px">
+        <canvas id="s5-chart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="s4-tables" id="s5-prod-tables"></div>
+
   <script>
     const REFRESH_MS = 60000;
 
@@ -1386,10 +1400,216 @@
       fillTable(document.querySelector('#s4-prod-table tbody'), d.crossByProduct  || [], 'product');
     }
 
+    // ── 섹션 5: 환불 현황 ──────────────────────────────────────────────
+    var s5Filter = '전체';
+    var s5Chart  = null;
+    var s5Data   = null;
+
+    const S5_CATS = ['Package - 런포트 패키지', 'Package - 클럽하우스 패키지'];
+    const S5_COLORS = {
+      'Package - 런포트 패키지':    '#3D7FFF',
+      'Package - 클럽하우스 패키지': '#1FD49A',
+    };
+    const S5_LABELS = {
+      'Package - 런포트 패키지':    '런포트 패키지',
+      'Package - 클럽하우스 패키지': '클럽하우스 패키지',
+    };
+
+    function setS5Filter(cat) {
+      s5Filter = cat;
+      document.querySelectorAll('#s5-filters .filter-btn').forEach(function(b) {
+        var isActive = b.dataset.cat === cat;
+        b.classList.toggle('active', isActive);
+        var col = S5_COLORS[b.dataset.cat] || '#3D7FFF';
+        b.style.borderColor     = col;
+        b.style.color           = isActive ? '#fff' : col;
+        b.style.backgroundColor = isActive ? col : '';
+      });
+      buildS5Chart();
+      renderS5ProdTable();
+    }
+
+    function buildS5Chart() {
+      if (!s5Data || !s5Data.dailyRefunds) return;
+      var daily = s5Data.dailyRefunds;
+      if (daily.length === 0) return;
+
+      var firstDate = new Date(daily[0].date);
+      var lastDate  = new Date(PRESALE_END);
+      var allDates  = [];
+      var cur = new Date(firstDate);
+      while (cur <= lastDate) {
+        allDates.push(cur.toISOString().substring(0, 10));
+        cur.setDate(cur.getDate() + 1);
+      }
+      var dataByDate = {};
+      daily.forEach(function(d) { dataByDate[d.date] = d; });
+
+      var labels = allDates.map(function(d) { return d.substring(5); });
+
+      var wrap = document.getElementById('s5-chart-wrap');
+      var isMobile = window.innerWidth <= 640;
+      var barW = isMobile ? 36 : 28;
+      var minWidth = Math.max(wrap.clientWidth - 40, allDates.length * barW);
+      document.getElementById('s5-scroll-inner').style.width = minWidth + 'px';
+
+      var datasets;
+      var isStack = s5Filter === '전체';
+      if (isStack) {
+        datasets = S5_CATS.map(function(cat) {
+          return {
+            label: S5_LABELS[cat],
+            data: allDates.map(function(d) {
+              var entry = dataByDate[d];
+              return (entry && entry.byCat && entry.byCat[cat]) || 0;
+            }),
+            backgroundColor: S5_COLORS[cat],
+            borderRadius: 2, borderSkipped: false,
+          };
+        });
+      } else {
+        datasets = [{
+          label: S5_LABELS[s5Filter] || s5Filter,
+          data: allDates.map(function(d) {
+            var entry = dataByDate[d];
+            return (entry && entry.byCat && entry.byCat[s5Filter]) || 0;
+          }),
+          backgroundColor: S5_COLORS[s5Filter] || '#3D7FFF',
+          borderRadius: 3, borderSkipped: false,
+        }];
+      }
+
+      var gridColor = 'rgba(255,255,255,0.04)';
+      var tickColor = '#3A4F6A';
+      var mono      = "'JetBrains Mono', monospace";
+
+      var nowS5 = new Date(); nowS5.setHours(nowS5.getHours() + 9);
+      var todayS5 = nowS5.toISOString().substring(0, 10);
+      var todayLinePluginS5 = {
+        id: 'todayLineS5',
+        afterDraw: function(chart) {
+          var idx = allDates.indexOf(todayS5);
+          if (idx < 0) return;
+          var xScale = chart.scales.x;
+          var yScale = chart.scales.y;
+          var ctx2   = chart.ctx;
+          var x = xScale.getPixelForValue(idx);
+          ctx2.save();
+          ctx2.strokeStyle = 'rgba(255,90,80,0.65)';
+          ctx2.setLineDash([4, 4]);
+          ctx2.lineWidth = 1;
+          ctx2.beginPath();
+          ctx2.moveTo(x, yScale.top);
+          ctx2.lineTo(x, yScale.bottom);
+          ctx2.stroke();
+          ctx2.setLineDash([]);
+          ctx2.restore();
+        }
+      };
+
+      if (s5Chart) s5Chart.destroy();
+      var canvas = document.getElementById('s5-chart');
+      s5Chart = new Chart(canvas, {
+        type: 'bar',
+        data: { labels: labels, datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: isStack, labels: { color: '#8AAAC8', font: { size: 11, family: mono } } },
+            tooltip: { mode: 'index', intersect: false },
+          },
+          scales: {
+            x: {
+              stacked: isStack,
+              grid: { color: gridColor },
+              ticks: { color: tickColor, font: { size: 10, family: mono }, maxRotation: 0 },
+            },
+            y: {
+              stacked: isStack,
+              grid: { color: gridColor },
+              ticks: {
+                color: tickColor, font: { size: 10, family: mono },
+                stepSize: 1, precision: 0,
+              },
+              beginAtZero: true,
+            },
+          },
+        },
+        plugins: [todayLinePluginS5],
+      });
+    }
+
+    function renderS5ProdTable() {
+      if (!s5Data) return;
+      var container = document.getElementById('s5-prod-tables');
+      var byCat = s5Data.byCat || {};
+      var cats = s5Filter === '전체' ? S5_CATS : [s5Filter];
+
+      var html = cats.map(function(cat) {
+        var catData = byCat[cat];
+        var prods = catData ? catData.products : {};
+        var rows = Object.keys(prods).sort(function(a, b) { return prods[b] - prods[a]; });
+        return '<div class="s4-col">'
+          + '<div class="s4-col-title">' + S5_LABELS[cat] + '</div>'
+          + '<table class="cross-table">'
+          + '<thead><tr><th>상품</th><th>환불건수</th></tr></thead>'
+          + '<tbody>'
+          + (rows.length > 0
+              ? rows.map(function(p) {
+                  return '<tr><td>' + p + '</td><td>' + prods[p] + '</td></tr>';
+                }).join('')
+              : '<tr><td colspan="2" style="text-align:center;color:#3A4F6A">환불 없음</td></tr>')
+          + '</tbody></table></div>';
+      }).join('');
+
+      container.innerHTML = html;
+    }
+
+    function renderS5(d) {
+      if (d.error) return;
+      s5Data = d;
+
+      var byCat = d.byCat || {};
+      var rpCount = (byCat['Package - 런포트 패키지']    && byCat['Package - 런포트 패키지'].count)    || 0;
+      var chCount = (byCat['Package - 클럽하우스 패키지'] && byCat['Package - 클럽하우스 패키지'].count) || 0;
+      document.getElementById('s5-summary').textContent =
+        '총 ' + (d.total || 0) + '건 · 런포트 패키지 ' + rpCount + '건 · 클럽하우스 패키지 ' + chCount + '건';
+
+      var filterContainer = document.getElementById('s5-filters');
+      if (!filterContainer.hasChildNodes()) {
+        ['전체'].concat(S5_CATS).forEach(function(cat, i) {
+          var btn = document.createElement('button');
+          btn.className = 'filter-btn' + (i === 0 ? ' active' : '');
+          btn.dataset.cat = cat;
+          btn.textContent = i === 0 ? '전체' : S5_LABELS[cat];
+          var col = S5_COLORS[cat] || '#3D7FFF';
+          btn.style.borderColor = col;
+          btn.style.color           = i === 0 ? '#fff' : col;
+          btn.style.backgroundColor = i === 0 ? col : '';
+          btn.addEventListener('click', function() { setS5Filter(cat); });
+          filterContainer.appendChild(btn);
+        });
+      }
+
+      if (d.dailyRefunds && d.dailyRefunds.length > 0) {
+        buildS5Chart();
+      } else {
+        document.getElementById('s5-chart-inner').innerHTML =
+          '<div style="color:#3A4F6A;padding:24px;text-align:center">환불 데이터 없음</div>';
+      }
+      renderS5ProdTable();
+    }
+
     function load() {
       fetch(SCRIPT_URL + '?mode=sauna_cross')
         .then(function(res) { return res.json(); })
         .then(function(d) { if (!d.error) renderS4(d); })
+        .catch(function() {});
+
+      fetch(SCRIPT_URL + '?mode=refund')
+        .then(function(res) { return res.json(); })
+        .then(function(d) { renderS5(d); })
         .catch(function() {});
 
       fetch(SCRIPT_URL)
@@ -1463,6 +1683,36 @@
         if (!dragging) return;
         dragging = false; c.style.cursor = 'grab';
         if (trendChart) { trendChart.options.plugins.tooltip.enabled = true; trendChart.update('none'); }
+      });
+    })();
+    // 섹션5 차트 캔버스 스와이프/드래그
+    (function() {
+      var c = document.getElementById('s5-chart');
+      var w = document.getElementById('s5-chart-wrap');
+      var tStartX = 0, tScrollLeft = 0;
+      c.addEventListener('touchstart', function(e) {
+        tStartX     = e.touches[0].clientX;
+        tScrollLeft = w.scrollLeft;
+      }, { passive: true });
+      c.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        w.scrollLeft = tScrollLeft + (tStartX - e.touches[0].clientX);
+      }, { passive: false });
+      var mStartX = 0, mScrollLeft = 0, dragging = false;
+      c.addEventListener('mousedown', function(e) {
+        dragging = true; mStartX = e.clientX; mScrollLeft = w.scrollLeft;
+        c.style.cursor = 'grabbing';
+        if (s5Chart) { s5Chart.options.plugins.tooltip.enabled = false; s5Chart.update('none'); }
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        w.scrollLeft = mScrollLeft - (e.clientX - mStartX);
+      });
+      document.addEventListener('mouseup', function() {
+        if (!dragging) return;
+        dragging = false; c.style.cursor = 'grab';
+        if (s5Chart) { s5Chart.options.plugins.tooltip.enabled = true; s5Chart.update('none'); }
       });
     })();
   </script>
