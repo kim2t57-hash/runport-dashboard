@@ -86,12 +86,23 @@
     .section-label {
       display: flex; align-items: center; gap: 10px;
       margin-bottom: 14px;
-      font-size: 10px; font-weight: 700;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      color: var(--text-dim);
     }
     .section-label::after {
       content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .sl-num {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      color: var(--text-dim);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 7px;
+      white-space: nowrap;
+    }
+    .sl-title {
+      font-size: 13px; font-weight: 700; letter-spacing: 0.02em;
+      color: var(--text-sub);
+      white-space: nowrap;
     }
 
     /* ── Table wrapper ── */
@@ -455,7 +466,7 @@
     </div>
   </div>
 
-  <div class="section-label">섹션 1 &nbsp;·&nbsp; 상품별 판매 실적 vs 목표</div>
+  <div class="section-label"><span class="sl-num">01</span><span class="sl-title">상품별 판매 실적 vs 목표</span></div>
   <p class="table-hint">▶ 행을 클릭하면 개별 상품 현황을 자세히 볼 수 있어요</p>
 
   <div class="table-wrap" id="table-wrap">
@@ -467,7 +478,7 @@
     <div class="refresh-track"><div class="refresh-fill" id="refresh-fill"></div></div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px">섹션 2 &nbsp;·&nbsp; 결제 추이 &amp; 마감 예상</div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">02</span><span class="sl-title">결제 추이 & 마감 예상</span></div>
   <div class="s2-controls">
     <div class="s2-filters" id="s3-filters"></div>
     <div class="s2-metric">
@@ -480,7 +491,7 @@
     <canvas id="s3-trend-chart"></canvas>
   </div>
 
-  <div class="section-label" style="margin-top: 40px">섹션 3 &nbsp;·&nbsp; 일별 판매 추이</div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">03</span><span class="sl-title">일별 판매 추이</span></div>
   <div class="s2-controls">
     <div class="s2-filters" id="s2-filters"></div>
     <div class="s2-metric">
@@ -497,7 +508,7 @@
     </div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px">섹션 4 &nbsp;·&nbsp; 런포트 패키지 환불 현황</div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">04</span><span class="sl-title">런포트 패키지 환불 현황</span></div>
   <div class="s2-controls">
     <div class="s2-filters" id="s5-filters"></div>
   </div>
@@ -507,7 +518,7 @@
   </div>
   <div class="s4-tables" id="s5-prod-tables"></div>
 
-  <div class="section-label" style="margin-top: 40px">섹션 5 &nbsp;·&nbsp; 사우나only 교차구매 분석</div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">05</span><span class="sl-title">사우나only 교차구매 분석</span></div>
   <div style="margin-bottom: 16px">
     <span class="s4-summary" id="s4-summary"></span>
   </div>
