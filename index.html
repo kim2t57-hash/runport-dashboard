@@ -371,6 +371,7 @@
     .sb-value.sb-blue { color: #3D7FFF; }
     .sb-value.sb-gray { color: #666; }
     .sb-ach { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+    .sb-channel { font-size: 10px; color: var(--text-sub); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
 
     /* ── 섹션4 교차구매 ── */
     .s4-summary { font-size: 12px; color: var(--text-dim); }
@@ -730,6 +731,32 @@
         }
       }
 
+      // 툴팁용 채널(온/오프라인) 조회 맵: { [dateIdx]: { [label]: { online, offline } } }
+      var channelByDateLabel = {};
+      allDates.forEach(function(d, i) {
+        channelByDateLabel[i] = {};
+        var entry = dataByDate[d];
+        if (!entry || !entry.byCategory) return;
+        if (s2Filter === '전체') {
+          Object.keys(entry.byCategory).forEach(function(cat) {
+            var shortLabel = cat.split(' - ').slice(1).join(' - ');
+            var bc = entry.byCategory[cat];
+            channelByDateLabel[i][shortLabel] = { online: bc.onlineCount || 0, offline: bc.offlineCount || 0 };
+          });
+        } else {
+          var bc = entry.byCategory[s2Filter];
+          if (bc) {
+            if (bc.products) {
+              Object.keys(bc.products).forEach(function(prod) {
+                channelByDateLabel[i][prod] = { online: bc.products[prod].onlineCount || 0, offline: bc.products[prod].offlineCount || 0 };
+              });
+            }
+            var shortLabel = s2Filter.split(' - ').slice(1).join(' - ');
+            channelByDateLabel[i][shortLabel] = { online: bc.onlineCount || 0, offline: bc.offlineCount || 0 };
+          }
+        }
+      });
+
       var gridColor = 'rgba(255,255,255,0.04)';
       var tickColor = '#3A4F6A';
       var mono      = "'JetBrains Mono', monospace";
@@ -806,8 +833,13 @@
             callbacks: {
               label: function(ctx) {
                 var v = ctx.parsed.y;
-                return ' ' + ctx.dataset.label + ': '
-                  + (metric === 'revenue' ? v.toLocaleString('ko-KR') + '원' : v + '건');
+                var label = ' ' + ctx.dataset.label + ': ';
+                if (metric === 'revenue') return label + v.toLocaleString('ko-KR') + '원';
+                var ch = channelByDateLabel[ctx.dataIndex] && channelByDateLabel[ctx.dataIndex][ctx.dataset.label];
+                var chStr = (ch && (ch.online + ch.offline) > 0)
+                  ? ' (온라인 ' + ch.online + ' / 오프라인 ' + ch.offline + ')'
+                  : '';
+                return label + v + '건' + chStr;
               }
             }
           }
@@ -1060,6 +1092,20 @@
         ? function(v) { return (v / 100000000).toFixed(2) + '억'; }
         : function(v) { return v.toLocaleString('ko-KR') + '명'; };
 
+      // 온/오프라인 집계 (건수 모드만)
+      var currentOnline = 0, currentOffline = 0;
+      if (metric === 'count' && s3Categories) {
+        s3Categories.forEach(function(c) {
+          if (s3ActiveCat === 'all' || c.category === s3ActiveCat) {
+            currentOnline  += (c.onlineCount  || 0);
+            currentOffline += (c.offlineCount || 0);
+          }
+        });
+      }
+      var channelLine = (metric === 'count' && (currentOnline + currentOffline) > 0)
+        ? '<div class="sb-channel">온라인 ' + currentOnline + ' / 오프라인 ' + currentOffline + '</div>'
+        : '';
+
       var goalCell = hasGoal
         ? '<div class="sb-value">' + fmt(totalGoal) + '</div>'
         : '<div class="sb-value sb-gray">—</div>';
@@ -1071,6 +1117,7 @@
         + '<div class="sb-cell">'
           + '<div class="sb-label">현재</div>'
           + '<div class="sb-value sb-blue">' + fmt(currentVal) + '</div>'
+          + channelLine
           + (achPct ? '<div class="sb-ach">' + achPct + '% 달성</div>' : '')
         + '</div>'
         + '<div class="sb-divider"></div>'
