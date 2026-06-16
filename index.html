@@ -193,6 +193,10 @@
     .cat-row.band-gita td:first-child { border-left-color: #8A5CF6; }
     .cat-row.band-gita:hover td, .prod-row.band-gita:hover td { background: var(--hover); }
 
+    .cat-row.band-trial td, .prod-row.band-trial td { background: #1A1208; }
+    .cat-row.band-trial td:first-child { border-left-color: #F2A93B; }
+    .cat-row.band-trial:hover td, .prod-row.band-trial:hover td { background: var(--hover); }
+
     /* ── Group separator rows ── */
     .group-header-row td {
       background: rgba(255,255,255,0.05) !important;
@@ -587,6 +591,8 @@
       // 보라 (기타)
       'Contents - 사우나only':        '#8A5CF6',
       'option':                      '#A78BFA',
+      // 주황 (체험/일일권)
+      'Contents - 체험/일일권':       '#F2A93B',
     };
 
     var trendChart     = null;
@@ -1250,6 +1256,7 @@
       'Contents - 사우나only',
       'Contents - PT체험권',
       'option',
+      'Contents - 체험/일일권',
     ]);
 
     const BAND_MAP = {
@@ -1264,6 +1271,7 @@
       'Access+Contents - 팀버핏':    'band-darkgreen',
       'Contents - 사우나only':        'band-gita',
       'option':                      'band-gita',
+      'Contents - 체험/일일권':       'band-trial',
     };
     function getBand(cat) { return BAND_MAP[cat] || ''; }
 
@@ -1326,7 +1334,7 @@
         + '<td class="n strong">' + fmtN(totalTgtCount)
           + '<div class="total-note">멤버십 기준</div></td>'
         + '<td class="n strong">' + fmtN(totalCount)
-          + '<div class="total-note">PT·사우나·체험권 제외</div></td>'
+          + '<div class="total-note">PT·사우나·체험권·체험일일권 제외</div></td>'
         + '<td>' + progressCell(totalCount, totalTgtCount) + '</td>'
         + '<td class="n strong">' + fmtN(totalTgtRevenue) + '</td>'
         + '<td class="n strong">' + fmtN(totalRevenue) + '</td>'
@@ -1340,6 +1348,7 @@
         'Package - 클럽하우스 패키지': 'BG',
         'Package - 팀버핏 패키지':     'TB',
         'Contents - 사우나only':       '기타',
+        'Contents - 체험/일일권':      '체험',
       };
       data.categories.forEach(function(cat, catIndex) {
         var hasTgtCount   = cat.targetCount   !== null;
