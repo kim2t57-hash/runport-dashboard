@@ -423,6 +423,13 @@
     }
 
     /* ── Mobile ── */
+    /* ── Section 6 monthly table ── */
+    .s6-group-th {
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    #s6-table-wrap table { min-width: unset; }
+
     @media (max-width: 640px) {
       body { padding: 20px 14px 40px; }
 
@@ -542,6 +549,12 @@
         <tbody></tbody>
       </table>
     </div>
+  </div>
+
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">06</span><span class="sl-title">월별 판매 현황</span></div>
+  <p class="table-hint">건수 / VAT 제외 금액 기준</p>
+  <div class="table-wrap" id="s6-table-wrap">
+    <div class="state"><div class="spinner"></div><span>데이터 불러오는 중...</span></div>
   </div>
 
   <script>
@@ -1675,7 +1688,124 @@
       renderS5ProdTable();
     }
 
+    function renderSection6(d) {
+      var wrap = document.getElementById('s6-table-wrap');
+      if (!d || d.error || !d.months) {
+        wrap.innerHTML = '<div class="state" style="min-height:60px">⚠️ &nbsp;월별 데이터를 불러오지 못했습니다. Code.gs 재배포가 필요합니다.</div>';
+        return;
+      }
+      var months     = d.months     || [];
+      var categories = d.categories || [];
+      if (months.length === 0) {
+        wrap.innerHTML = '<div class="state" style="min-height:60px">월별 데이터가 없습니다.</div>';
+        return;
+      }
+      var totalCols  = 1 + 2 + months.length * 2;
+
+      function vatMinus(rev) { return Math.round(rev / 1.1); }
+      function monthLabel(m) { return parseInt(m.split('-')[1], 10) + '월'; }
+
+      function cellPair(count, revenue) {
+        if (count === 0) {
+          return '<td class="n dim">' + dash() + '</td>'
+            + '<td class="n dim" style="border-right:1px solid var(--border)">' + dash() + '</td>';
+        }
+        return '<td class="n">' + count.toLocaleString('ko-KR') + '</td>'
+          + '<td class="n" style="border-right:1px solid var(--border)">' + fmtN(vatMinus(revenue)) + '</td>';
+      }
+
+      // thead (2행)
+      var thead = '<thead><tr>'
+        + '<th class="col-name" rowspan="2">판매상품</th>'
+        + '<th colspan="2" class="s6-group-th">합계</th>';
+      months.forEach(function(m) {
+        thead += '<th colspan="2" class="s6-group-th">' + monthLabel(m) + '</th>';
+      });
+      thead += '</tr><tr>'
+        + '<th>건수</th><th style="border-right:1px solid var(--border)">금액 (VAT-)</th>';
+      months.forEach(function() {
+        thead += '<th>건수</th><th style="border-right:1px solid var(--border)">금액 (VAT-)</th>';
+      });
+      thead += '</tr></thead>';
+
+      // Total 집계
+      var totalCount = 0, totalRevenue = 0;
+      var totalByMonth = {};
+      months.forEach(function(m) { totalByMonth[m] = { count: 0, revenue: 0 }; });
+      categories.forEach(function(cat) {
+        totalCount   += cat.total.count;
+        totalRevenue += cat.total.revenue;
+        months.forEach(function(m) {
+          var bm = (cat.byMonth && cat.byMonth[m]) || { count: 0, revenue: 0 };
+          totalByMonth[m].count   += bm.count;
+          totalByMonth[m].revenue += bm.revenue;
+        });
+      });
+
+      // tbody
+      var tbody = '<tbody>';
+
+      // Total 행
+      tbody += '<tr class="totals-row">'
+        + '<td><span class="totals-label">Total</span></td>'
+        + cellPair(totalCount, totalRevenue);
+      months.forEach(function(m) {
+        var bm = totalByMonth[m];
+        tbody += cellPair(bm.count, bm.revenue);
+      });
+      tbody += '</tr>';
+
+      var GROUP_HEADERS_S6 = {
+        'Package - 런포트 패키지':     'RP',
+        'Package - 클럽하우스 패키지': 'BG',
+        'Package - 팀버핏 패키지':     'TB',
+        'Contents - 사우나only':       '기타',
+        'Contents - 체험/일일권':      '체험',
+      };
+
+      categories.forEach(function(cat) {
+        var band         = BAND_MAP[cat.category] || '';
+        var parts        = cat.category.split(' - ');
+        var prefix       = parts[0];
+        var subName      = parts.slice(1).join(' - ');
+        var isGita       = cat.category === 'option';
+        var displayPrefix  = isGita ? '기타' : prefix;
+        var displaySubName = isGita ? '옵션상품' : subName;
+
+        if (GROUP_HEADERS_S6[cat.category]) {
+          tbody += '<tr class="group-header-row">'
+            + '<td colspan="' + totalCols + '"><span class="group-label">'
+            + GROUP_HEADERS_S6[cat.category]
+            + '</span></td></tr>';
+        }
+
+        tbody += '<tr class="cat-row ' + band + '" style="cursor:default">'
+          + '<td class="col-name"><span class="cat-name">'
+          + '<span class="cat-text">'
+          + '<span class="cat-prefix">' + displayPrefix + '</span>'
+          + displaySubName
+          + '</span></span></td>';
+
+        tbody += cellPair(cat.total.count, cat.total.revenue);
+        months.forEach(function(m) {
+          var bm = (cat.byMonth && cat.byMonth[m]) || { count: 0, revenue: 0 };
+          tbody += cellPair(bm.count, bm.revenue);
+        });
+        tbody += '</tr>';
+      });
+
+      tbody += '</tbody>';
+
+      document.getElementById('s6-table-wrap').innerHTML =
+        '<table>' + thead + tbody + '</table>';
+    }
+
     function load() {
+      fetch(SCRIPT_URL + '?mode=monthly')
+        .then(function(res) { return res.json(); })
+        .then(function(d) { renderSection6(d); })
+        .catch(function() {});
+
       fetch(SCRIPT_URL + '?mode=sauna_cross')
         .then(function(res) { return res.json(); })
         .then(function(d) { if (!d.error) renderS4(d); })
