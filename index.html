@@ -339,6 +339,11 @@
     #s2-chart-inner { height: 240px; }
     #trend-chart { cursor: grab; }
 
+    #trial-chart-wrap { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; height: auto; }
+    #trial-scroll-inner { display: flex; flex-direction: column; }
+    #trial-chart-inner { height: 240px; }
+    #trial-chart { cursor: grab; }
+
     /* ── 섹션2 타임라인 ── */
     #s2-timeline { position: relative; height: 68px; border-top: 1px solid rgba(255,255,255,0.06); }
     .tl-row { position: relative; height: 20px; margin-top: 2px; display: flex; align-items: center; }
@@ -503,7 +508,7 @@
     <canvas id="s3-trend-chart"></canvas>
   </div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">03</span><span class="sl-title">일별 판매 추이</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">03</span><span class="sl-title">일별 판매 추이(정규권)</span></div>
   <div class="s2-controls">
     <div class="s2-filters" id="s2-filters"></div>
     <div class="s2-metric">
@@ -520,7 +525,22 @@
     </div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">04</span><span class="sl-title">런포트 패키지 환불 현황</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">04</span><span class="sl-title">일별 판매 추이(체험/일일권)</span></div>
+  <div class="s2-controls">
+    <div class="s2-metric">
+      <button class="metric-btn active" id="trial-m-count"   onclick="setTrialMetric('count')">건수</button>
+      <button class="metric-btn"        id="trial-m-revenue" onclick="setTrialMetric('revenue')">매출</button>
+    </div>
+  </div>
+  <div class="chart-wrap" id="trial-chart-wrap">
+    <div id="trial-scroll-inner">
+      <div id="trial-chart-inner">
+        <canvas id="trial-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">05</span><span class="sl-title">런포트 패키지 환불 현황</span></div>
   <div class="s2-controls">
     <div class="s2-filters" id="s5-filters"></div>
   </div>
@@ -530,7 +550,7 @@
   </div>
   <div class="s4-tables" id="s5-prod-tables"></div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">05</span><span class="sl-title">사우나only 교차구매 분석</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">06</span><span class="sl-title">사우나only 교차구매 분석</span></div>
   <div style="margin-bottom: 16px">
     <span class="s4-summary" id="s4-summary"></span>
   </div>
@@ -551,7 +571,7 @@
     </div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">06</span><span class="sl-title">월별 판매 현황</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">07</span><span class="sl-title">월별 판매 현황</span></div>
   <p class="table-hint">건수 / VAT 제외 금액 기준</p>
   <div class="table-wrap" id="s6-table-wrap">
     <div class="state"><div class="spinner"></div><span>데이터 불러오는 중...</span></div>
@@ -593,7 +613,7 @@
       'Package - 런포트 패키지':      '#3D7FFF',
       'Access - 러닝스테이션 멤버십': '#7AABFF',
       // 연한 녹색 (BG)
-      'Package - 클럽하우스 패키지':  '#1FD49A',
+      'Package - 버핏그라운드 패키지':  '#1FD49A',
       'Access - 버핏그라운드 멤버십': '#6EEBB0',
       'Access+Contents - PT+BG':     '#A8F0D4',
       'Contents - PT':               '#47C98A',
@@ -672,6 +692,7 @@
       if (!container.hasChildNodes()) {
         container.appendChild(makeFilterBtn('전체', true));
         Object.keys(CAT_COLORS).forEach(function(cat) {
+          if (cat === 'Contents - 체험/일일권') return;
           container.appendChild(makeFilterBtn(cat, false));
         });
       }
@@ -707,7 +728,9 @@
       // height는 CSS #s2-chart-inner { height: 240px } 로 처리
 
       if (isStack) {
-        datasets = Object.keys(CAT_COLORS).map(function(cat) {
+        datasets = Object.keys(CAT_COLORS).filter(function(cat) {
+          return cat !== 'Contents - 체험/일일권';
+        }).map(function(cat) {
           return {
             label: cat.split(' - ').slice(1).join(' - '),
             data: allDates.map(function(d) {
@@ -967,6 +990,179 @@
         container.appendChild(row);
       });
     }
+
+    // ── 섹션 4: 일별 판매 추이(체험/일일권) ──────────────────────
+    const TRIAL_CATEGORY = 'Contents - 체험/일일권';
+    const TRIAL_PRODUCTS_LIST = ['런포트 체험권', '클럽하우스 1일권', '버핏그라운드 1일권'];
+    const TRIAL_PROD_COLORS = {
+      '런포트 체험권':    '#F2A93B',
+      '클럽하우스 1일권':  '#F7C46A',
+      '버핏그라운드 1일권': '#FBD99A',
+    };
+
+    var trialChart          = null;
+    var trialMetric         = 'count';
+    var lastTrialDailyStats = null;
+
+    function setTrialMetric(m) {
+      trialMetric = m;
+      document.getElementById('trial-m-count').classList.toggle('active',   m === 'count');
+      document.getElementById('trial-m-revenue').classList.toggle('active', m === 'revenue');
+      if (lastTrialDailyStats) buildTrialChart(lastTrialDailyStats);
+    }
+
+    function renderTrialSection(dailyStats) {
+      if (!dailyStats || dailyStats.length === 0) return;
+      lastTrialDailyStats = dailyStats;
+      buildTrialChart(dailyStats);
+    }
+
+    function buildTrialChart(dailyStats) {
+      var firstDate = new Date(dailyStats[0].date);
+      var lastDate  = new Date(PRESALE_END);
+      var allDates  = [];
+      var cur = new Date(firstDate);
+      while (cur <= lastDate) {
+        allDates.push(cur.toISOString().substring(0, 10));
+        cur.setDate(cur.getDate() + 1);
+      }
+      var dataByDate = {};
+      dailyStats.forEach(function(d) { dataByDate[d.date] = d; });
+
+      var labels   = allDates.map(function(d) { return d.substring(5); });
+      var metric   = trialMetric;
+
+      var wrap = document.getElementById('trial-chart-wrap');
+      var isMobile = window.innerWidth <= 640;
+      var barW = isMobile ? 36 : 28;
+      var minWidth = Math.max(wrap.clientWidth - 40, allDates.length * barW);
+      document.getElementById('trial-scroll-inner').style.width = minWidth + 'px';
+
+      var datasets = TRIAL_PRODUCTS_LIST.map(function(prod) {
+        return {
+          label: prod,
+          data: allDates.map(function(d) {
+            var entry  = dataByDate[d];
+            var byProd = entry && entry.byCategory[TRIAL_CATEGORY] && entry.byCategory[TRIAL_CATEGORY].products;
+            return (byProd && byProd[prod] && byProd[prod][metric]) || 0;
+          }),
+          backgroundColor: TRIAL_PROD_COLORS[prod],
+          borderRadius: 2, borderSkipped: false,
+        };
+      });
+
+      var gridColor = 'rgba(255,255,255,0.04)';
+      var tickColor = '#3A4F6A';
+      var mono      = "'JetBrains Mono', monospace";
+
+      var nowTrial   = new Date(); nowTrial.setHours(nowTrial.getHours() + 9);
+      var todayTrial = nowTrial.toISOString().substring(0, 10);
+
+      var todayLinePluginTrial = {
+        id: 'todayLineTrial',
+        afterDraw: function(chart) {
+          var idx = allDates.indexOf(todayTrial);
+          if (idx < 0) return;
+          var xScale = chart.scales.x;
+          var yScale = chart.scales.y;
+          var ctx2   = chart.ctx;
+          var x = xScale.getPixelForValue(idx);
+          ctx2.save();
+          ctx2.strokeStyle = 'rgba(255,90,80,0.65)';
+          ctx2.setLineDash([4, 4]);
+          ctx2.lineWidth = 1;
+          ctx2.beginPath();
+          ctx2.moveTo(x, yScale.top);
+          ctx2.lineTo(x, yScale.bottom);
+          ctx2.stroke();
+          ctx2.setLineDash([]);
+          ctx2.fillStyle = 'rgba(255,110,100,0.9)';
+          ctx2.font = '10px "Noto Sans KR"';
+          ctx2.textAlign = 'left';
+          ctx2.fillText('오늘', x + 4, yScale.top + 14);
+          ctx2.restore();
+        }
+      };
+
+      var stackTotalsPluginTrial = {
+        id: 'stackTotalsTrial',
+        afterDatasetsDraw: function(chart) {
+          var ctx2    = chart.ctx;
+          var dsCount = chart.data.datasets.length;
+          if (dsCount === 0) return;
+          chart.data.labels.forEach(function(_, i) {
+            var total = chart.data.datasets.reduce(function(sum, ds) {
+              return sum + (ds.data[i] || 0);
+            }, 0);
+            if (!total) return;
+            var lastMeta = chart.getDatasetMeta(dsCount - 1);
+            if (!lastMeta.data[i]) return;
+            var x = lastMeta.data[i].x;
+            var y = lastMeta.data[i].y - 4;
+            ctx2.save();
+            ctx2.font = "9px 'JetBrains Mono', monospace";
+            ctx2.fillStyle = '#8A9DC0';
+            ctx2.textAlign = 'center';
+            ctx2.textBaseline = 'bottom';
+            ctx2.fillText(metric === 'revenue' ? Math.round(total / 10000) + '만' : String(total), x, y);
+            ctx2.restore();
+          });
+        }
+      };
+
+      if (trialChart) trialChart.destroy();
+      trialChart = new Chart(document.getElementById('trial-chart'), {
+        type: 'bar',
+        data: { labels: labels, datasets: datasets },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true, position: 'top',
+              labels: { color: tickColor, font: { size: 10 }, boxWidth: 10, padding: 12 }
+            },
+            tooltip: {
+              mode: 'index',
+              callbacks: {
+                label: function(ctx) {
+                  var v = ctx.parsed.y;
+                  if (metric === 'revenue') return ' ' + ctx.dataset.label + ': ' + v.toLocaleString('ko-KR') + '원';
+                  return ' ' + ctx.dataset.label + ': ' + v + '건';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              grid: { color: gridColor },
+              ticks: { color: tickColor, font: { family: mono, size: 10 }, maxRotation: 45 }
+            },
+            y: {
+              stacked: true,
+              grid: { color: gridColor },
+              ticks: {
+                color: tickColor, font: { family: mono, size: 10 },
+                callback: metric === 'revenue'
+                  ? function(v) { return (v / 10000).toFixed(0) + '만'; }
+                  : undefined
+              }
+            }
+          }
+        },
+        plugins: [stackTotalsPluginTrial, todayLinePluginTrial]
+      });
+
+      // 오늘 날짜가 viewport 중앙에 오도록 자동 스크롤
+      var todayIdxScroll = allDates.indexOf(todayTrial);
+      if (todayIdxScroll >= 0) {
+        var todayXPos = trialChart.scales.x.getPixelForValue(todayIdxScroll);
+        wrap.scrollLeft = Math.max(0, todayXPos - wrap.clientWidth / 2);
+      } else {
+        wrap.scrollLeft = wrap.scrollWidth;
+      }
+    }
+    // ────────────────────────────────────────────────────────────
 
     // ── 섹션 3: 누적 실적 vs 목표 vs 마감 예상 ──────────────────
     const PRESALE_END = '2026-07-10';
@@ -1275,7 +1471,7 @@
     const BAND_MAP = {
       'Package - 런포트 패키지':      'band-package',
       'Access - 러닝스테이션 멤버십': 'band-package',
-      'Package - 클럽하우스 패키지':  'band-access',
+      'Package - 버핏그라운드 패키지':  'band-access',
       'Access - 버핏그라운드 멤버십': 'band-access',
       'Access+Contents - PT+BG':     'band-access',
       'Contents - PT':               'band-access',
@@ -1358,7 +1554,7 @@
       var catHtml = '';
       const GROUP_HEADERS = {
         'Package - 런포트 패키지':     'RP',
-        'Package - 클럽하우스 패키지': 'BG',
+        'Package - 버핏그라운드 패키지': 'BG',
         'Package - 팀버핏 패키지':     'TB',
         'Contents - 사우나only':       '기타',
         'Contents - 체험/일일권':      '체험',
@@ -1444,6 +1640,7 @@
       lastCategories = data.categories;
       renderSection2(data.dailyStats);
       renderSection3(data.dailyStats, data.categories, totalTgtRevenue, totalTgtCount);
+      renderTrialSection(data.dailyStats);
     }
 
     // 세분류 토글 (이벤트 위임 - table-wrap은 교체되지 않으므로 한 번만 등록)
@@ -1482,14 +1679,14 @@
     var s5Chart  = null;
     var s5Data   = null;
 
-    const S5_CATS = ['Package - 런포트 패키지', 'Package - 클럽하우스 패키지'];
+    const S5_CATS = ['Package - 런포트 패키지', 'Package - 버핏그라운드 패키지'];
     const S5_COLORS = {
       'Package - 런포트 패키지':    '#3D7FFF',
-      'Package - 클럽하우스 패키지': '#1FD49A',
+      'Package - 버핏그라운드 패키지': '#1FD49A',
     };
     const S5_LABELS = {
       'Package - 런포트 패키지':    '런포트 패키지',
-      'Package - 클럽하우스 패키지': '클럽하우스 패키지',
+      'Package - 버핏그라운드 패키지': '버핏그라운드 패키지',
     };
 
     function setS5Filter(cat) {
@@ -1643,7 +1840,7 @@
 
       var byCat = d.byCat || {};
       var rpCount = (byCat['Package - 런포트 패키지']    && byCat['Package - 런포트 패키지'].count)    || 0;
-      var chCount = (byCat['Package - 클럽하우스 패키지'] && byCat['Package - 클럽하우스 패키지'].count) || 0;
+      var chCount = (byCat['Package - 버핏그라운드 패키지'] && byCat['Package - 버핏그라운드 패키지'].count) || 0;
       var total = d.total || 0;
       document.getElementById('s5-stats').innerHTML =
         '<div class="sb-cell">'
@@ -1652,7 +1849,7 @@
         + '</div>'
         + '<div class="sb-divider"></div>'
         + '<div class="sb-cell">'
-          + '<div class="sb-label">클럽하우스 패키지</div>'
+          + '<div class="sb-label">버핏그라운드 패키지</div>'
           + '<div class="sb-value sb-blue">' + chCount + '건</div>'
         + '</div>'
         + '<div class="sb-divider"></div>'
@@ -1757,7 +1954,7 @@
 
       var GROUP_HEADERS_S6 = {
         'Package - 런포트 패키지':     'RP',
-        'Package - 클럽하우스 패키지': 'BG',
+        'Package - 버핏그라운드 패키지': 'BG',
         'Package - 팀버핏 패키지':     'TB',
         'Contents - 사우나only':       '기타',
         'Contents - 체험/일일권':      '체험',
@@ -1853,6 +2050,39 @@
       load();
       startRefreshBar();
       setTimeout(cycle, REFRESH_MS);
+    })();
+
+    // 섹션4 체험/일일권 차트 드래그/스와이프
+    (function() {
+      var c = document.getElementById('trial-chart');
+      var w = document.getElementById('trial-chart-wrap');
+
+      var tStartX = 0, tScrollLeft = 0;
+      c.addEventListener('touchstart', function(e) {
+        tStartX     = e.touches[0].clientX;
+        tScrollLeft = w.scrollLeft;
+      }, { passive: true });
+      c.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        w.scrollLeft = tScrollLeft + (tStartX - e.touches[0].clientX);
+      }, { passive: false });
+
+      var mStartX = 0, mScrollLeft = 0, dragging = false;
+      c.addEventListener('mousedown', function(e) {
+        dragging = true; mStartX = e.clientX; mScrollLeft = w.scrollLeft;
+        c.style.cursor = 'grabbing';
+        if (trialChart) { trialChart.options.plugins.tooltip.enabled = false; trialChart.update('none'); }
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        w.scrollLeft = mScrollLeft - (e.clientX - mStartX);
+      });
+      document.addEventListener('mouseup', function() {
+        if (!dragging) return;
+        dragging = false; c.style.cursor = 'grab';
+        if (trialChart) { trialChart.options.plugins.tooltip.enabled = true; trialChart.update('none'); }
+      });
     })();
 
     // 섹션2 차트 캔버스 스와이프/드래그 — Chart.js touch-action:none 우회
