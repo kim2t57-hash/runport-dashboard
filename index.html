@@ -185,9 +185,13 @@
     .cat-row.band-darkgreen td,  .prod-row.band-darkgreen td  { background: #0B160D; }
     .cat-row.band-darkgreen td:first-child  { border-left-color: #1A9448; }
 
+    .cat-row.band-teal td,  .prod-row.band-teal td  { background: #071615; }
+    .cat-row.band-teal td:first-child  { border-left-color: #1ABFBA; }
+
     .cat-row.band-package:hover td,    .prod-row.band-package:hover td,
     .cat-row.band-access:hover td,     .prod-row.band-access:hover td,
-    .cat-row.band-darkgreen:hover td,  .prod-row.band-darkgreen:hover td { background: var(--hover); }
+    .cat-row.band-darkgreen:hover td,  .prod-row.band-darkgreen:hover td,
+    .cat-row.band-teal:hover td,       .prod-row.band-teal:hover td { background: var(--hover); }
 
     .cat-row.band-gita td, .prod-row.band-gita td { background: #130F1A; }
     .cat-row.band-gita td:first-child { border-left-color: #8A5CF6; }
@@ -287,24 +291,6 @@
       font-size: 11px;
       font-family: 'Noto Sans KR', sans-serif;
       font-style: italic;
-    }
-
-    /* ── Refresh bar ── */
-    .refresh-wrap {
-      margin-top: 14px; display: flex;
-      align-items: center; gap: 10px;
-    }
-    .refresh-label {
-      font-size: 10px; letter-spacing: 0.08em;
-      color: var(--text-dim); white-space: nowrap;
-    }
-    .refresh-track {
-      flex: 1; height: 2px; background: var(--border);
-      border-radius: 1px; overflow: hidden;
-    }
-    .refresh-fill {
-      height: 100%; background: var(--accent);
-      border-radius: 1px; width: 0%;
     }
 
     /* ── Section 2 ── */
@@ -435,6 +421,14 @@
     }
     #s6-table-wrap table { min-width: unset; }
 
+    /* ── Target comparison cell (V2 mode) ── */
+    .tgt-old {
+      display: block;
+      font-size: 10px;
+      color: var(--text-dim);
+      line-height: 1.2;
+    }
+
     @media (max-width: 640px) {
       body { padding: 20px 14px 40px; }
 
@@ -485,14 +479,13 @@
 
   <div class="section-label"><span class="sl-num">01</span><span class="sl-title">상품별 판매 실적 vs 목표</span></div>
   <p class="table-hint">▶ 행을 클릭하면 개별 상품 현황을 자세히 볼 수 있어요</p>
+  <div class="s2-metric" style="margin-bottom:10px">
+    <button class="metric-btn active" id="tgt-v1-btn" onclick="setTargetView('v1')">목표(최초)</button>
+    <button class="metric-btn"        id="tgt-v2-btn" onclick="setTargetView('v2')">목표(변경1)</button>
+  </div>
 
   <div class="table-wrap" id="table-wrap">
     <div class="state"><div class="spinner"></div><span>데이터 불러오는 중...</span></div>
-  </div>
-
-  <div class="refresh-wrap">
-    <span class="refresh-label">1분 자동 새로고침</span>
-    <div class="refresh-track"><div class="refresh-fill" id="refresh-fill"></div></div>
   </div>
 
   <div class="section-label" style="margin-top: 40px"><span class="sl-num">02</span><span class="sl-title">결제 추이 & 마감 예상</span></div>
@@ -572,13 +565,17 @@
   </div>
 
   <div class="section-label" style="margin-top: 40px"><span class="sl-num">07</span><span class="sl-title">월별 판매 현황</span></div>
-  <p class="table-hint">건수 / VAT 제외 금액 기준</p>
+  <p class="table-hint">▶ 행을 클릭하면 개별 상품 현황을 자세히 볼 수 있어요 · 건수 / VAT 제외 금액 기준</p>
+  <div class="s2-metric" style="margin-bottom:10px">
+    <button class="metric-btn active" id="s6-monthly-btn" onclick="setS6ViewMode('monthly')">월별</button>
+    <button class="metric-btn"        id="s6-weekly-btn"  onclick="setS6ViewMode('weekly')">주별</button>
+  </div>
   <div class="table-wrap" id="s6-table-wrap">
     <div class="state"><div class="spinner"></div><span>데이터 불러오는 중...</span></div>
   </div>
 
   <script>
-    const REFRESH_MS = 60000;
+    const REFRESH_MS = 600000;
 
     // BG/TB/RP 타임라인 데이터
     const TIMELINE_DATA = [
@@ -591,7 +588,7 @@
         { start: '2026-06-20',  end: '2026-06-30', label: '4차' },
         { start: '2026-07-01',  end: '2026-07-10', label: '5차' },
       ]},
-      { brand: 'TB', color: '#1A9448', phases: [
+      { brand: 'TB', color: '#1ABFBA', phases: [
         {                        end: '2026-05-12', label: '0차' },
         { start: '2026-05-13',  end: '2026-05-25', label: '1차' },
         { start: '2026-05-26',  end: '2026-06-22', label: '2차' },
@@ -615,12 +612,12 @@
       // 연한 녹색 (BG)
       'Package - 버핏그라운드 패키지':  '#1FD49A',
       'Access - 버핏그라운드 멤버십': '#6EEBB0',
-      'Access+Contents - PT+BG':     '#A8F0D4',
-      'Contents - PT':               '#47C98A',
+      // 진한 녹색 (PT, merged)
+      'Access+Contents - PT':        '#1A9448',
       'Contents - PT체험권':          '#6EEBB0',
-      // 진한 녹색 (TB)
-      'Package - 팀버핏 패키지':      '#22B55A',
-      'Access+Contents - 팀버핏':    '#157840',
+      // 청록 (TB)
+      'Package - 팀버핏 패키지':      '#1ABFBA',
+      'Access+Contents - 팀버핏':    '#0F9490',
       // 보라 (기타)
       'Contents - 사우나only':        '#8A5CF6',
       'option':                      '#A78BFA',
@@ -633,6 +630,34 @@
     var s2Filter       = '전체';
     var lastDailyStats = null;
     var lastCategories = null;
+
+    var currentTargetView = 'v1';
+    var lastRenderData    = null;
+    var s6ViewMode        = 'monthly';
+    var lastMonthlyData   = null;
+
+    const TARGETS_V1 = {
+      'Package - 런포트 패키지':       { count: 600,  revenue: 471960000 },
+      'Package - 버핏그라운드 패키지':  { count: 100,  revenue: 84210000  },
+      'Access - 버핏그라운드 멤버십':  { count: 541,  revenue: 282022600 },
+      'Access+Contents - PT':         { count: 109,  revenue: 178481440 },
+      'Access+Contents - 팀버핏':     { count: 200,  revenue: 155491000 },
+      'Contents - 사우나only':         { count: 100,  revenue: 40658000  },
+      'Contents - PT체험권':           { count: 97,   revenue: 4859262   },
+      'option':                        { count: null, revenue: 45123616  },
+    };
+
+    const TARGETS_V2 = {
+      'Package - 런포트 패키지':       { count: 450,  revenue: 240301000 },
+      'Package - 버핏그라운드 패키지':  { count: 50,   revenue: 32460665  },
+      'Package - 팀버핏 패키지':       { count: 50,   revenue: 42123616  },
+      'Access - 버핏그라운드 멤버십':  { count: 541,  revenue: 282022600 },
+      'Access+Contents - PT':         { count: 109,  revenue: 178481440 },
+      'Access+Contents - 팀버핏':     { count: 350,  revenue: 293326000 },
+      'Contents - 사우나only':         { count: 50,   revenue: 15170000  },
+      'Contents - PT체험권':           { count: 97,   revenue: 4859262   },
+      'option':                        { count: null, revenue: 45123616  },
+    };
 
     function setMetric(m) {
       s2Metric = m;
@@ -1461,7 +1486,6 @@
 
     // 전체 건수 합산 제외 카테고리 (금액은 전체 포함)
     const EXCLUDE_FROM_TOTAL = new Set([
-      'Contents - PT',
       'Contents - 사우나only',
       'Contents - PT체험권',
       'option',
@@ -1473,11 +1497,10 @@
       'Access - 러닝스테이션 멤버십': 'band-package',
       'Package - 버핏그라운드 패키지':  'band-access',
       'Access - 버핏그라운드 멤버십': 'band-access',
-      'Access+Contents - PT+BG':     'band-access',
-      'Contents - PT':               'band-access',
+      'Access+Contents - PT':        'band-darkgreen',
       'Contents - PT체험권':          'band-access',
-      'Package - 팀버핏 패키지':      'band-darkgreen',
-      'Access+Contents - 팀버핏':    'band-darkgreen',
+      'Package - 팀버핏 패키지':      'band-teal',
+      'Access+Contents - 팀버핏':    'band-teal',
       'Contents - 사우나only':        'band-gita',
       'option':                      'band-gita',
       'Contents - 체험/일일권':       'band-trial',
@@ -1519,20 +1542,132 @@
         + '</div>';
     }
 
-    function render(data) {
+    // PT+BG와 Contents-PT를 단일 'Access+Contents - PT' 카테고리로 병합
+    var PT_CAT_1  = 'Access+Contents - PT+BG';
+    var PT_CAT_2  = 'Contents - PT';
+    var PT_MERGED = 'Access+Contents - PT';
+
+    function mergePTCategories(data) {
+      var newCats = [];
+      var mergedCat = null;
+      data.categories.forEach(function(cat) {
+        if (cat.category === PT_CAT_1) {
+          mergedCat = {
+            category:      PT_MERGED,
+            count:         cat.count,
+            revenue:       cat.revenue,
+            onlineCount:   cat.onlineCount  || 0,
+            offlineCount:  cat.offlineCount || 0,
+            products:      (cat.products || []).slice(),
+            targetCount:   cat.targetCount,
+            targetRevenue: cat.targetRevenue,
+          };
+          newCats.push(mergedCat);
+        } else if (cat.category === PT_CAT_2) {
+          if (mergedCat) {
+            mergedCat.count        += cat.count;
+            mergedCat.revenue      += cat.revenue;
+            mergedCat.onlineCount  += (cat.onlineCount  || 0);
+            mergedCat.offlineCount += (cat.offlineCount || 0);
+            (cat.products || []).forEach(function(p) { mergedCat.products.push(p); });
+          }
+        } else {
+          newCats.push(cat);
+        }
+      });
+      data.categories = newCats;
+
+      if (data.dailyStats) {
+        data.dailyStats.forEach(function(day) {
+          if (!day.byCategory) return;
+          var c1 = day.byCategory[PT_CAT_1];
+          var c2 = day.byCategory[PT_CAT_2];
+          if (!c1 && !c2) return;
+          var merged = {
+            count:        ((c1 && c1.count)        || 0) + ((c2 && c2.count)        || 0),
+            revenue:      ((c1 && c1.revenue)      || 0) + ((c2 && c2.revenue)      || 0),
+            onlineCount:  ((c1 && c1.onlineCount)  || 0) + ((c2 && c2.onlineCount)  || 0),
+            offlineCount: ((c1 && c1.offlineCount) || 0) + ((c2 && c2.offlineCount) || 0),
+            products: {},
+          };
+          if (c1 && c1.products) Object.assign(merged.products, c1.products);
+          if (c2 && c2.products) Object.assign(merged.products, c2.products);
+          day.byCategory[PT_MERGED] = merged;
+          delete day.byCategory[PT_CAT_1];
+          delete day.byCategory[PT_CAT_2];
+        });
+      }
+      return data;
+    }
+
+    function mergePTMonthly(d) {
+      if (!d || !d.categories) return d;
+      var newCats = [];
+      var mergedCat = null;
+      d.categories.forEach(function(cat) {
+        if (cat.category === PT_CAT_1) {
+          mergedCat = {
+            category: PT_MERGED,
+            total:    { count: cat.total.count, revenue: cat.total.revenue },
+            byMonth:  {},
+            products: (cat.products || []).slice(),
+          };
+          Object.keys(cat.byMonth || {}).forEach(function(m) {
+            mergedCat.byMonth[m] = { count: cat.byMonth[m].count, revenue: cat.byMonth[m].revenue };
+          });
+          newCats.push(mergedCat);
+        } else if (cat.category === PT_CAT_2) {
+          if (mergedCat) {
+            mergedCat.total.count   += cat.total.count;
+            mergedCat.total.revenue += cat.total.revenue;
+            Object.keys(cat.byMonth || {}).forEach(function(m) {
+              if (!mergedCat.byMonth[m]) mergedCat.byMonth[m] = { count: 0, revenue: 0 };
+              mergedCat.byMonth[m].count   += cat.byMonth[m].count;
+              mergedCat.byMonth[m].revenue += cat.byMonth[m].revenue;
+            });
+            (cat.products || []).forEach(function(p) { mergedCat.products.push(p); });
+          }
+        } else {
+          newCats.push(cat);
+        }
+      });
+      d.categories = newCats;
+      return d;
+    }
+
+    function tgtCell(catName, field, targetView) {
+      var v1Val = TARGETS_V1[catName] ? TARGETS_V1[catName][field] : undefined;
+      var v2Val = TARGETS_V2[catName] ? TARGETS_V2[catName][field] : undefined;
+      v1Val = (v1Val !== undefined) ? v1Val : null;
+      v2Val = (v2Val !== undefined) ? v2Val : null;
+
+      if (targetView !== 'v2') {
+        return v1Val !== null ? fmtN(v1Val) : dash();
+      }
+      if (v1Val === v2Val) {
+        return v2Val !== null ? fmtN(v2Val) : dash();
+      }
+      var oldLine = '<span class="tgt-old">' + (v1Val !== null ? fmtN(v1Val) : '—') + '</span>';
+      return oldLine + (v2Val !== null ? fmtN(v2Val) : dash());
+    }
+
+    function renderSection1Table(data, targetView) {
+      var TARGETS_LOCAL = targetView === 'v2' ? TARGETS_V2 : TARGETS_V1;
+
       // Pass 1: 집계 (건수는 EXCLUDE_FROM_TOTAL 제외, 금액은 전체 포함)
       var totalCount = 0, totalRevenue = 0;
       var totalTgtCount = 0, totalTgtRevenue = 0;
 
       data.categories.forEach(function(cat) {
-        var hasTgtCount   = cat.targetCount   !== null;
-        var hasTgtRevenue = cat.targetRevenue !== null && cat.targetRevenue > 0;
+        var localTgt      = TARGETS_LOCAL[cat.category] || { count: null, revenue: null };
+        var hasTgtCount   = localTgt.count   !== null;
+        var hasTgtRevenue = localTgt.revenue !== null && localTgt.revenue > 0;
         var inTotalCount  = !EXCLUDE_FROM_TOTAL.has(cat.category);
 
-        if (hasTgtRevenue) { totalTgtRevenue += cat.targetRevenue; }
+        if (hasTgtRevenue) { totalTgtRevenue += localTgt.revenue; }
         totalRevenue += cat.revenue;
         if (inTotalCount) {
-          if (hasTgtCount) { totalTgtCount += cat.targetCount; }
+          if (hasTgtCount) { totalTgtCount += localTgt.count; }
           totalCount += cat.count;
         }
       });
@@ -1552,7 +1687,7 @@
 
       // Pass 2: 카테고리·상품 행 HTML
       var catHtml = '';
-      const GROUP_HEADERS = {
+      const GROUP_HEADERS_S1 = {
         'Package - 런포트 패키지':     'RP',
         'Package - 버핏그라운드 패키지': 'BG',
         'Package - 팀버핏 패키지':     'TB',
@@ -1560,8 +1695,7 @@
         'Contents - 체험/일일권':      '체험',
       };
       data.categories.forEach(function(cat, catIndex) {
-        var hasTgtCount   = cat.targetCount   !== null;
-        var hasTgtRevenue = cat.targetRevenue !== null && cat.targetRevenue > 0;
+        var localTgt      = TARGETS_LOCAL[cat.category] || { count: null, revenue: null };
         var band          = getBand(cat.category);
         var catId         = 'cat-' + catIndex;
         var parts         = cat.category.split(' - ');
@@ -1574,22 +1708,19 @@
         var displayPrefix  = isGita ? '기타' : prefix;
         var displaySubName = cat.category === 'option' ? '옵션상품' : subName;
 
-        if (GROUP_HEADERS[cat.category]) {
+        if (GROUP_HEADERS_S1[cat.category]) {
           catHtml += '<tr class="group-header-row">'
             + '<td colspan="7"><span class="group-label">'
-            + GROUP_HEADERS[cat.category]
+            + GROUP_HEADERS_S1[cat.category]
             + '</span></td></tr>';
         }
 
-        var tgtCountCell = hasTgtCount ? fmtN(cat.targetCount) : dash();
-        if (cat.category === 'Access - 버핏그라운드 멤버십') {
-          tgtCountCell += '<div class="total-note">PT+BG 제외</div>';
-        }
+        var tgtCountCell = tgtCell(cat.category, 'count', targetView);
 
-        var actualCountCell    = isPending ? pending() : isUpcoming ? upcoming() : (cat.count   > 0 ? fmtN(cat.count)   : dash());
-        var actualRevenueCell  = isPending ? pending() : isUpcoming ? upcoming() : (cat.revenue > 0 ? fmtN(cat.revenue) : dash());
-        var countProgCell      = (isPending || isUpcoming) ? dash() : progressCell(cat.count,   cat.targetCount);
-        var revenueProgCell    = (isPending || isUpcoming) ? dash() : progressCell(cat.revenue, cat.targetRevenue);
+        var actualCountCell   = isPending ? pending() : isUpcoming ? upcoming() : (cat.count   > 0 ? fmtN(cat.count)   : dash());
+        var actualRevenueCell = isPending ? pending() : isUpcoming ? upcoming() : (cat.revenue > 0 ? fmtN(cat.revenue) : dash());
+        var countProgCell     = (isPending || isUpcoming) ? dash() : progressCell(cat.count,   localTgt.count);
+        var revenueProgCell   = (isPending || isUpcoming) ? dash() : progressCell(cat.revenue, localTgt.revenue);
 
         catHtml += '<tr class="cat-row ' + band + '" data-cat-id="' + catId + '">'
           + '<td class="col-name"><span class="cat-name">'
@@ -1598,12 +1729,12 @@
           + '<span class="cat-prefix">' + displayPrefix + '</span>'
           + displaySubName
           + '</span></span></td>'
-          + '<td class="n">'        + tgtCountCell       + '</td>'
-          + '<td class="n strong">' + actualCountCell    + '</td>'
-          + '<td>'                  + countProgCell      + '</td>'
-          + '<td class="n">'        + (hasTgtRevenue ? fmtN(cat.targetRevenue) : dash()) + '</td>'
-          + '<td class="n strong">' + actualRevenueCell  + '</td>'
-          + '<td>'                  + revenueProgCell    + '</td>'
+          + '<td class="n">'        + tgtCountCell                                 + '</td>'
+          + '<td class="n strong">' + actualCountCell                              + '</td>'
+          + '<td>'                  + countProgCell                                + '</td>'
+          + '<td class="n">'        + tgtCell(cat.category, 'revenue', targetView) + '</td>'
+          + '<td class="n strong">' + actualRevenueCell                            + '</td>'
+          + '<td>'                  + revenueProgCell                              + '</td>'
           + '</tr>';
 
         cat.products.forEach(function(prod, i) {
@@ -1631,16 +1762,47 @@
         + '</tr></thead>'
         + '<tbody>' + totalHtml + catHtml + '</tbody>'
         + '</table>';
+    }
+
+    function render(data) {
+      data = mergePTCategories(data);
+      lastRenderData = data;
+      renderSection1Table(data, currentTargetView);
 
       if (data.updatedAt) {
         document.getElementById('updated-at').textContent =
           new Date(data.updatedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
       }
 
+      var s3TgtRev = 0, s3TgtCnt = 0;
+      data.categories.forEach(function(cat) {
+        var tgt = TARGETS_V1[cat.category] || { count: null, revenue: null };
+        if (tgt.revenue !== null && tgt.revenue > 0) s3TgtRev += tgt.revenue;
+        if (!EXCLUDE_FROM_TOTAL.has(cat.category) && tgt.count !== null) s3TgtCnt += tgt.count;
+      });
+
       lastCategories = data.categories;
       renderSection2(data.dailyStats);
-      renderSection3(data.dailyStats, data.categories, totalTgtRevenue, totalTgtCount);
+      renderSection3(data.dailyStats, data.categories, s3TgtRev, s3TgtCnt);
       renderTrialSection(data.dailyStats);
+    }
+
+    function setS6ViewMode(mode) {
+      s6ViewMode = mode;
+      document.getElementById('s6-monthly-btn').classList.toggle('active', mode === 'monthly');
+      document.getElementById('s6-weekly-btn').classList.toggle('active',  mode === 'weekly');
+      if (mode === 'monthly') {
+        if (lastMonthlyData) renderSection6(lastMonthlyData);
+      } else {
+        if (lastRenderData) renderSection6(buildWeeklyFromDaily(lastRenderData), weekStartToLabel);
+      }
+    }
+
+    function setTargetView(view) {
+      currentTargetView = view;
+      document.getElementById('tgt-v1-btn').classList.toggle('active', view === 'v1');
+      document.getElementById('tgt-v2-btn').classList.toggle('active', view === 'v2');
+      if (lastRenderData) renderSection1Table(lastRenderData, view);
     }
 
     // 세분류 토글 (이벤트 위임 - table-wrap은 교체되지 않으므로 한 번만 등록)
@@ -1648,6 +1810,17 @@
       var row = e.target.closest('tr.cat-row');
       if (!row) return;
       var catId = row.dataset.catId;
+      var isExpanded = row.classList.toggle('expanded');
+      document.querySelectorAll('[data-cat-parent="' + catId + '"]').forEach(function(r) {
+        r.style.display = isExpanded ? '' : 'none';
+      });
+    });
+
+    document.getElementById('s6-table-wrap').addEventListener('click', function(e) {
+      var row = e.target.closest('tr.cat-row');
+      if (!row) return;
+      var catId = row.dataset.catId;
+      if (!catId) return;
       var isExpanded = row.classList.toggle('expanded');
       document.querySelectorAll('[data-cat-parent="' + catId + '"]').forEach(function(r) {
         r.style.display = isExpanded ? '' : 'none';
@@ -1885,7 +2058,78 @@
       renderS5ProdTable();
     }
 
-    function renderSection6(d) {
+    function getWeekStart(dateStr) {
+      var d    = new Date(dateStr + 'T00:00:00Z');
+      var day  = d.getUTCDay(); // 0=일, 1=월
+      var diff = day === 0 ? -6 : 1 - day;
+      return new Date(d.getTime() + diff * 86400000).toISOString().substring(0, 10);
+    }
+
+    function weekStartToLabel(ws) {
+      var mon = new Date(ws + 'T00:00:00Z');
+      var sun = new Date(mon.getTime() + 6 * 86400000);
+      return (mon.getUTCMonth()+1) + '/' + mon.getUTCDate()
+           + '~' + (sun.getUTCMonth()+1) + '/' + sun.getUTCDate();
+    }
+
+    function buildWeeklyFromDaily(data) {
+      var dailyStats = data.dailyStats || [];
+      var catList    = data.categories || [];
+      var weekData   = {};
+
+      dailyStats.forEach(function(day) {
+        var ws = getWeekStart(day.date);
+        if (!weekData[ws]) weekData[ws] = {};
+        Object.keys(day.byCategory || {}).forEach(function(catName) {
+          var dc = day.byCategory[catName];
+          if (!weekData[ws][catName]) weekData[ws][catName] = { count: 0, revenue: 0, products: {} };
+          var wc = weekData[ws][catName];
+          wc.count   += dc.count   || 0;
+          wc.revenue += dc.revenue || 0;
+          Object.keys(dc.products || {}).forEach(function(prodName) {
+            var dp = dc.products[prodName];
+            if (!wc.products[prodName]) wc.products[prodName] = { count: 0, revenue: 0 };
+            wc.products[prodName].count   += dp.count   || 0;
+            wc.products[prodName].revenue += dp.revenue || 0;
+          });
+        });
+      });
+
+      var weeks = Object.keys(weekData).sort();
+
+      var categories = catList.map(function(cat) {
+        var byWeek = {};
+        var totalCount = 0, totalRevenue = 0;
+        weeks.forEach(function(ws) {
+          var wc = weekData[ws] && weekData[ws][cat.category];
+          byWeek[ws] = wc ? { count: wc.count, revenue: wc.revenue } : { count: 0, revenue: 0 };
+          totalCount   += byWeek[ws].count;
+          totalRevenue += byWeek[ws].revenue;
+        });
+        var products = (cat.products || []).map(function(prod) {
+          var pByWeek = {};
+          var pCount = 0, pRevenue = 0;
+          weeks.forEach(function(ws) {
+            var wc = weekData[ws] && weekData[ws][cat.category];
+            var pp = wc && wc.products[prod.name];
+            pByWeek[ws] = pp ? { count: pp.count, revenue: pp.revenue } : { count: 0, revenue: 0 };
+            pCount   += pByWeek[ws].count;
+            pRevenue += pByWeek[ws].revenue;
+          });
+          return { name: prod.name, total: { count: pCount, revenue: pRevenue }, byMonth: pByWeek };
+        });
+        return {
+          category: cat.category,
+          total:    { count: totalCount, revenue: totalRevenue },
+          byMonth:  byWeek,
+          products: products,
+        };
+      });
+
+      return { months: weeks, categories: categories };
+    }
+
+    function renderSection6(d, labelFn) {
       var wrap = document.getElementById('s6-table-wrap');
       if (!d || d.error || !d.months) {
         wrap.innerHTML = '<div class="state" style="min-height:60px">⚠️ &nbsp;월별 데이터를 불러오지 못했습니다. Code.gs 재배포가 필요합니다.</div>';
@@ -1900,7 +2144,7 @@
       var totalCols  = 1 + 2 + months.length * 2;
 
       function vatMinus(rev) { return Math.round(rev / 1.1); }
-      function monthLabel(m) { return parseInt(m.split('-')[1], 10) + '월'; }
+      function monthLabel(m) { return labelFn ? labelFn(m) : (parseInt(m.split('-')[1], 10) + '월'); }
 
       function cellPair(count, revenue) {
         if (count === 0) {
@@ -1960,7 +2204,7 @@
         'Contents - 체험/일일권':      '체험',
       };
 
-      categories.forEach(function(cat) {
+      categories.forEach(function(cat, catIdx) {
         var band         = BAND_MAP[cat.category] || '';
         var parts        = cat.category.split(' - ');
         var prefix       = parts[0];
@@ -1976,8 +2220,10 @@
             + '</span></td></tr>';
         }
 
-        tbody += '<tr class="cat-row ' + band + '" style="cursor:default">'
+        var catId = 's6-cat-' + catIdx;
+        tbody += '<tr class="cat-row ' + band + '" data-cat-id="' + catId + '">'
           + '<td class="col-name"><span class="cat-name">'
+          + '<span class="toggle-icon">▶</span>'
           + '<span class="cat-text">'
           + '<span class="cat-prefix">' + displayPrefix + '</span>'
           + displaySubName
@@ -1989,6 +2235,20 @@
           tbody += cellPair(bm.count, bm.revenue);
         });
         tbody += '</tr>';
+
+        if (cat.products && cat.products.length > 0) {
+          cat.products.forEach(function(prod, pi) {
+            var isLast = pi === cat.products.length - 1;
+            tbody += '<tr class="prod-row ' + (prod.total.count === 0 ? 'zero ' : '') + band + (isLast ? ' last-in-group' : '') + '" data-cat-parent="' + catId + '" style="display:none">'
+              + '<td class="col-name"><span class="prod-name">└ ' + prod.name + '</span></td>';
+            tbody += cellPair(prod.total.count, prod.total.revenue);
+            months.forEach(function(m) {
+              var bm = (prod.byMonth && prod.byMonth[m]) || { count: 0, revenue: 0 };
+              tbody += cellPair(bm.count, bm.revenue);
+            });
+            tbody += '</tr>';
+          });
+        }
       });
 
       tbody += '</tbody>';
@@ -2000,7 +2260,10 @@
     function load() {
       fetch(SCRIPT_URL + '?mode=monthly')
         .then(function(res) { return res.json(); })
-        .then(function(d) { renderSection6(d); })
+        .then(function(d) {
+          lastMonthlyData = mergePTMonthly(d);
+          renderSection6(lastMonthlyData);
+        })
         .catch(function() {});
 
       fetch(SCRIPT_URL + '?mode=sauna_cross')
@@ -2034,21 +2297,8 @@
         });
     }
 
-    function startRefreshBar() {
-      var fill = document.getElementById('refresh-fill');
-      fill.style.transition = 'none';
-      fill.style.width = '0%';
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          fill.style.transition = 'width ' + REFRESH_MS + 'ms linear';
-          fill.style.width = '100%';
-        });
-      });
-    }
-
     (function cycle() {
       load();
-      startRefreshBar();
       setTimeout(cycle, REFRESH_MS);
     })();
 
