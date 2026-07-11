@@ -1365,6 +1365,7 @@
       var currentOnline = 0, currentOffline = 0;
       if (metric === 'count' && s3Categories) {
         s3Categories.forEach(function(c) {
+          if (s3Filter === '전체' && EXCLUDE_FROM_TOTAL.has(c.category)) return;
           if (s3Filter === '전체' || c.category === s3Filter) {
             currentOnline  += (c.onlineCount  || 0);
             currentOffline += (c.offlineCount || 0);
