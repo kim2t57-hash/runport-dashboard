@@ -196,7 +196,7 @@
     .cat-row.band-pt td:first-child        { border-left-color: #F97316; }
     .cat-row.band-pt:hover td,  .prod-row.band-pt:hover td  { background: var(--hover); }
 
-    /* PT체험권 — 노란색 */
+    /* 체험권 — 노란색 */
     .cat-row.band-pt-trial td,  .prod-row.band-pt-trial td  { background: #181508; }
     .cat-row.band-pt-trial td:first-child  { border-left-color: #FDE047; }
     .cat-row.band-pt-trial:hover td, .prod-row.band-pt-trial:hover td { background: var(--hover); }
@@ -216,7 +216,7 @@
     .cat-row.band-gray td:first-child      { border-left-color: #6B7280; }
     .cat-row.band-gray:hover td, .prod-row.band-gray:hover td { background: var(--hover); }
 
-    /* 체험/일일권 — 진한 노란색 */
+    /* 일일권 — 진한 노란색 */
     .cat-row.band-trial td, .prod-row.band-trial td { background: #181400; }
     .cat-row.band-trial td:first-child { border-left-color: #D97706; }
     .cat-row.band-trial:hover td, .prod-row.band-trial:hover td { background: var(--hover); }
@@ -349,6 +349,11 @@
     #trial-scroll-inner { display: flex; flex-direction: column; }
     #trial-chart-inner { height: 240px; }
     #trial-chart { cursor: grab; }
+
+    #daypass-chart-wrap { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; height: auto; }
+    #daypass-scroll-inner { display: flex; flex-direction: column; }
+    #daypass-chart-inner { height: 240px; }
+    #daypass-chart { cursor: grab; }
 
     /* ── 섹션2 타임라인 ── */
     #s2-timeline { position: relative; height: 68px; border-top: 1px solid rgba(255,255,255,0.06); }
@@ -546,7 +551,7 @@
     </div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">04</span><span class="sl-title">일별 판매 추이(체험/일일권)</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">04</span><span class="sl-title">체험권 판매 추이</span></div>
   <div class="s2-controls">
     <div class="s2-metric">
       <button class="metric-btn active" id="trial-m-count"   onclick="setTrialMetric('count')">건수</button>
@@ -561,7 +566,22 @@
     </div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">05</span><span class="sl-title">런포트 패키지 환불 현황</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">05</span><span class="sl-title">일일권 판매 추이</span></div>
+  <div class="s2-controls">
+    <div class="s2-metric">
+      <button class="metric-btn active" id="daypass-m-count"   onclick="setDaypassMetric('count')">건수</button>
+      <button class="metric-btn"        id="daypass-m-revenue" onclick="setDaypassMetric('revenue')">매출</button>
+    </div>
+  </div>
+  <div class="chart-wrap" id="daypass-chart-wrap">
+    <div id="daypass-scroll-inner">
+      <div id="daypass-chart-inner">
+        <canvas id="daypass-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">06</span><span class="sl-title">런포트 패키지 환불 현황</span></div>
   <div class="s2-controls">
     <div class="s2-filters" id="s5-filters"></div>
   </div>
@@ -571,7 +591,7 @@
   </div>
   <div class="s4-tables" id="s5-prod-tables"></div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">06</span><span class="sl-title">사우나only 교차구매 분석</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">07</span><span class="sl-title">사우나only 교차구매 분석</span></div>
   <div style="margin-bottom: 16px">
     <span class="s4-summary" id="s4-summary"></span>
   </div>
@@ -592,7 +612,7 @@
     </div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">07</span><span class="sl-title">월별 판매 현황</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">08</span><span class="sl-title">월별/주차별 판매 현황</span></div>
   <p class="table-hint">▶ 행을 클릭하면 개별 상품 현황을 자세히 볼 수 있어요 · 건수 / VAT 제외 금액 기준</p>
   <div class="s2-metric" style="margin-bottom:10px">
     <button class="metric-btn active" id="s6-monthly-btn" onclick="setS6ViewMode('monthly')">월별</button>
@@ -643,8 +663,6 @@
       'Access - 버핏그라운드 멤버십': '#86EFAC',
       // 주황색 (PT)
       'Access+Contents - PT':        '#F97316',
-      // 노란색 (PT체험권)
-      'Contents - PT체험권':          '#FDE047',
       // 보라색 (TB 패키지)
       'Package - 팀버핏 패키지':      '#8B5CF6',
       // 연보라색 (TB)
@@ -652,8 +670,10 @@
       // 회색 (기타)
       'Contents - 사우나only':        '#6B7280',
       'option':                      '#9CA3AF',
-      // 진한 노란색 (체험/일일권)
-      'Contents - 체험/일일권':       '#D97706',
+      // 노란색 (체험권)
+      'Contents - 체험권':            '#FDE047',
+      // 진한 노란색 (일일권)
+      'Contents - 일일권':            '#D97706',
     };
 
     var trendChart     = null;
@@ -674,7 +694,7 @@
       'Access+Contents - PT':         { count: 109,  revenue: 178481440 },
       'Access+Contents - 팀버핏':     { count: 200,  revenue: 155491000 },
       'Contents - 사우나only':         { count: 100,  revenue: 40658000  },
-      'Contents - PT체험권':           { count: 97,   revenue: 4859262   },
+      'Contents - 체험권':             { count: 97,   revenue: 4859262   },
       'option':                        { count: null, revenue: 45123616  },
     };
 
@@ -686,7 +706,7 @@
       'Access+Contents - PT':         { count: 109,  revenue: 178481440 },
       'Access+Contents - 팀버핏':     { count: 350,  revenue: 293326000 },
       'Contents - 사우나only':         { count: 50,   revenue: 15170000  },
-      'Contents - PT체험권':           { count: 97,   revenue: 4859262   },
+      'Contents - 체험권':             { count: 97,   revenue: 4859262   },
       'option':                        { count: null, revenue: 45123616  },
     };
 
@@ -748,7 +768,7 @@
       if (!container.hasChildNodes()) {
         container.appendChild(makeFilterBtn('전체', true));
         Object.keys(CAT_COLORS).forEach(function(cat) {
-          if (cat === 'Contents - 체험/일일권') return;
+          if (cat === 'Contents - 체험권' || cat === 'Contents - 일일권') return;
           container.appendChild(makeFilterBtn(cat, false));
         });
       }
@@ -785,7 +805,7 @@
 
       if (isStack) {
         datasets = Object.keys(CAT_COLORS).filter(function(cat) {
-          return cat !== 'Contents - 체험/일일권';
+          return cat !== 'Contents - 체험권' && cat !== 'Contents - 일일권';
         }).map(function(cat) {
           return {
             label: cat.split(' - ').slice(1).join(' - '),
@@ -1047,36 +1067,8 @@
       });
     }
 
-    // ── 섹션 4: 일별 판매 추이(체험/일일권) ──────────────────────
-    const TRIAL_CATEGORY = 'Contents - 체험/일일권';
-    const TRIAL_PRODUCTS_LIST = ['런포트 체험권', '클럽하우스 1일권', '버핏그라운드 1일권', '사우나 1회권 Only', '팀버핏 체험 7일 무제한', '팀버핏 1회 이용권'];
-    const TRIAL_PROD_COLORS = {
-      '런포트 체험권':    '#F2A93B',
-      '클럽하우스 1일권':  '#F7C46A',
-      '버핏그라운드 1일권': '#FBD99A',
-      '사우나 1회권 Only': '#94A3B8',
-      '팀버핏 체험 7일 무제한': '#B45309',
-      '팀버핏 1회 이용권':      '#71717A',
-    };
-
-    var trialChart          = null;
-    var trialMetric         = 'count';
-    var lastTrialDailyStats = null;
-
-    function setTrialMetric(m) {
-      trialMetric = m;
-      document.getElementById('trial-m-count').classList.toggle('active',   m === 'count');
-      document.getElementById('trial-m-revenue').classList.toggle('active', m === 'revenue');
-      if (lastTrialDailyStats) buildTrialChart(lastTrialDailyStats);
-    }
-
-    function renderTrialSection(dailyStats) {
-      if (!dailyStats || dailyStats.length === 0) return;
-      lastTrialDailyStats = dailyStats;
-      buildTrialChart(dailyStats);
-    }
-
-    function buildTrialChart(dailyStats) {
+    // ── 섹션 4/5: 상품별 일별 판매 추이 (체험권 / 일일권 공용) ──────────
+    function buildDailyProductChart(dailyStats, metric, category, products, colors, chartId, wrapId, scrollInnerId, prevChart, pluginTag) {
       var firstDate = new Date(dailyStats[0].date);
       var lastDate  = new Date(PRESALE_END);
       var allDates  = [];
@@ -1088,24 +1080,23 @@
       var dataByDate = {};
       dailyStats.forEach(function(d) { dataByDate[d.date] = d; });
 
-      var labels   = allDates.map(function(d) { return d.substring(5); });
-      var metric   = trialMetric;
+      var labels = allDates.map(function(d) { return d.substring(5); });
 
-      var wrap = document.getElementById('trial-chart-wrap');
+      var wrap = document.getElementById(wrapId);
       var isMobile = window.innerWidth <= 640;
       var barW = isMobile ? 36 : 28;
       var minWidth = Math.max(wrap.clientWidth - 40, allDates.length * barW);
-      document.getElementById('trial-scroll-inner').style.width = minWidth + 'px';
+      document.getElementById(scrollInnerId).style.width = minWidth + 'px';
 
-      var datasets = TRIAL_PRODUCTS_LIST.map(function(prod) {
+      var datasets = products.map(function(prod) {
         return {
           label: prod,
           data: allDates.map(function(d) {
             var entry  = dataByDate[d];
-            var byProd = entry && entry.byCategory[TRIAL_CATEGORY] && entry.byCategory[TRIAL_CATEGORY].products;
+            var byProd = entry && entry.byCategory[category] && entry.byCategory[category].products;
             return (byProd && byProd[prod] && byProd[prod][metric]) || 0;
           }),
-          backgroundColor: TRIAL_PROD_COLORS[prod],
+          backgroundColor: colors[prod],
           borderRadius: 2, borderSkipped: false,
         };
       });
@@ -1114,13 +1105,13 @@
       var tickColor = '#3A4F6A';
       var mono      = "'JetBrains Mono', monospace";
 
-      var nowTrial   = new Date(); nowTrial.setHours(nowTrial.getHours() + 9);
-      var todayTrial = nowTrial.toISOString().substring(0, 10);
+      var nowD   = new Date(); nowD.setHours(nowD.getHours() + 9);
+      var todayD = nowD.toISOString().substring(0, 10);
 
-      var todayLinePluginTrial = {
-        id: 'todayLineTrial',
+      var todayLinePlugin = {
+        id: 'todayLine' + pluginTag,
         afterDraw: function(chart) {
-          var idx = allDates.indexOf(todayTrial);
+          var idx = allDates.indexOf(todayD);
           if (idx < 0) return;
           var xScale = chart.scales.x;
           var yScale = chart.scales.y;
@@ -1143,8 +1134,8 @@
         }
       };
 
-      var stackTotalsPluginTrial = {
-        id: 'stackTotalsTrial',
+      var stackTotalsPlugin = {
+        id: 'stackTotals' + pluginTag,
         afterDatasetsDraw: function(chart) {
           var ctx2    = chart.ctx;
           var dsCount = chart.data.datasets.length;
@@ -1169,8 +1160,8 @@
         }
       };
 
-      if (trialChart) trialChart.destroy();
-      trialChart = new Chart(document.getElementById('trial-chart'), {
+      if (prevChart) prevChart.destroy();
+      var chart = new Chart(document.getElementById(chartId), {
         type: 'bar',
         data: { labels: labels, datasets: datasets },
         options: {
@@ -1209,17 +1200,73 @@
             }
           }
         },
-        plugins: [stackTotalsPluginTrial, todayLinePluginTrial]
+        plugins: [stackTotalsPlugin, todayLinePlugin]
       });
 
       // 오늘 날짜가 viewport 중앙에 오도록 자동 스크롤
-      var todayIdxScroll = allDates.indexOf(todayTrial);
+      var todayIdxScroll = allDates.indexOf(todayD);
       if (todayIdxScroll >= 0) {
-        var todayXPos = trialChart.scales.x.getPixelForValue(todayIdxScroll);
+        var todayXPos = chart.scales.x.getPixelForValue(todayIdxScroll);
         wrap.scrollLeft = Math.max(0, todayXPos - wrap.clientWidth / 2);
       } else {
         wrap.scrollLeft = wrap.scrollWidth;
       }
+      return chart;
+    }
+
+    // 섹션4: 체험권 판매 추이
+    const TRIAL_CATEGORY = 'Contents - 체험권';
+    const TRIAL_PRODUCTS_LIST = ['런포트 체험권', '팀버핏 체험 7일 무제한', 'PT 체험 2회 (7일)'];
+    const TRIAL_PROD_COLORS = {
+      '런포트 체험권':          '#F2A93B',
+      '팀버핏 체험 7일 무제한': '#B45309',
+      'PT 체험 2회 (7일)':      '#FDE047',
+    };
+    var trialChart          = null;
+    var trialMetric         = 'count';
+    var lastTrialDailyStats = null;
+
+    function setTrialMetric(m) {
+      trialMetric = m;
+      document.getElementById('trial-m-count').classList.toggle('active',   m === 'count');
+      document.getElementById('trial-m-revenue').classList.toggle('active', m === 'revenue');
+      if (lastTrialDailyStats) {
+        trialChart = buildDailyProductChart(lastTrialDailyStats, trialMetric, TRIAL_CATEGORY, TRIAL_PRODUCTS_LIST, TRIAL_PROD_COLORS, 'trial-chart', 'trial-chart-wrap', 'trial-scroll-inner', trialChart, 'Trial');
+      }
+    }
+
+    function renderTrialSection(dailyStats) {
+      if (!dailyStats || dailyStats.length === 0) return;
+      lastTrialDailyStats = dailyStats;
+      trialChart = buildDailyProductChart(dailyStats, trialMetric, TRIAL_CATEGORY, TRIAL_PRODUCTS_LIST, TRIAL_PROD_COLORS, 'trial-chart', 'trial-chart-wrap', 'trial-scroll-inner', trialChart, 'Trial');
+    }
+
+    // 섹션5: 일일권 판매 추이
+    const DAYPASS_CATEGORY = 'Contents - 일일권';
+    const DAYPASS_PRODUCTS_LIST = ['클럽하우스 1일권(런포트 1일권)', '버핏그라운드 1일권', '사우나 1회권 Only', '팀버핏 1회 이용권'];
+    const DAYPASS_PROD_COLORS = {
+      '클럽하우스 1일권(런포트 1일권)': '#F7C46A',
+      '버핏그라운드 1일권':             '#FBD99A',
+      '사우나 1회권 Only':              '#94A3B8',
+      '팀버핏 1회 이용권':              '#71717A',
+    };
+    var daypassChart          = null;
+    var daypassMetric         = 'count';
+    var lastDaypassDailyStats = null;
+
+    function setDaypassMetric(m) {
+      daypassMetric = m;
+      document.getElementById('daypass-m-count').classList.toggle('active',   m === 'count');
+      document.getElementById('daypass-m-revenue').classList.toggle('active', m === 'revenue');
+      if (lastDaypassDailyStats) {
+        daypassChart = buildDailyProductChart(lastDaypassDailyStats, daypassMetric, DAYPASS_CATEGORY, DAYPASS_PRODUCTS_LIST, DAYPASS_PROD_COLORS, 'daypass-chart', 'daypass-chart-wrap', 'daypass-scroll-inner', daypassChart, 'Daypass');
+      }
+    }
+
+    function renderDaypassSection(dailyStats) {
+      if (!dailyStats || dailyStats.length === 0) return;
+      lastDaypassDailyStats = dailyStats;
+      daypassChart = buildDailyProductChart(dailyStats, daypassMetric, DAYPASS_CATEGORY, DAYPASS_PRODUCTS_LIST, DAYPASS_PROD_COLORS, 'daypass-chart', 'daypass-chart-wrap', 'daypass-scroll-inner', daypassChart, 'Daypass');
     }
     // ────────────────────────────────────────────────────────────
 
@@ -1519,9 +1566,9 @@
     // 전체 건수 합산 제외 카테고리 (금액은 전체 포함)
     const EXCLUDE_FROM_TOTAL = new Set([
       'Contents - 사우나only',
-      'Contents - PT체험권',
       'option',
-      'Contents - 체험/일일권',
+      'Contents - 체험권',
+      'Contents - 일일권',
     ]);
 
     const BAND_MAP = {
@@ -1530,12 +1577,12 @@
       'Package - 버핏그라운드 패키지':  'band-bg-pkg',
       'Access - 버핏그라운드 멤버십': 'band-bg-mem',
       'Access+Contents - PT':        'band-pt',
-      'Contents - PT체험권':          'band-pt-trial',
       'Package - 팀버핏 패키지':      'band-tb-pkg',
       'Access+Contents - 팀버핏':    'band-tb',
       'Contents - 사우나only':        'band-gray',
       'option':                      'band-gray',
-      'Contents - 체험/일일권':       'band-trial',
+      'Contents - 체험권':            'band-pt-trial',
+      'Contents - 일일권':            'band-trial',
     };
     function getBand(cat) { return BAND_MAP[cat] || ''; }
 
@@ -1724,7 +1771,7 @@
         'Package - 버핏그라운드 패키지': 'BG',
         'Package - 팀버핏 패키지':     'TB',
         'Contents - 사우나only':       '기타',
-        'Contents - 체험/일일권':      '체험',
+        'Contents - 체험권':           '체험',
       };
       data.categories.forEach(function(cat, catIndex) {
         var localTgt      = TARGETS_LOCAL[cat.category] || { count: null, revenue: null };
@@ -1818,6 +1865,7 @@
       renderSection2(data.dailyStats);
       renderSection3(data.dailyStats, data.categories, s3TgtRev, s3TgtCnt);
       renderTrialSection(data.dailyStats);
+      renderDaypassSection(data.dailyStats);
     }
 
     function setS6ViewMode(mode) {
@@ -2234,7 +2282,7 @@
         'Package - 버핏그라운드 패키지': 'BG',
         'Package - 팀버핏 패키지':     'TB',
         'Contents - 사우나only':       '기타',
-        'Contents - 체험/일일권':      '체험',
+        'Contents - 체험권':           '체험',
       };
 
       categories.forEach(function(cat, catIdx) {
@@ -2344,7 +2392,7 @@
       setTimeout(cycle, REFRESH_MS);
     })();
 
-    // 섹션4 체험/일일권 차트 드래그/스와이프
+    // 섹션4 체험권 차트 드래그/스와이프
     (function() {
       var c = document.getElementById('trial-chart');
       var w = document.getElementById('trial-chart-wrap');
@@ -2374,6 +2422,39 @@
         if (!dragging) return;
         dragging = false; c.style.cursor = 'grab';
         if (trialChart) { trialChart.options.plugins.tooltip.enabled = true; trialChart.update('none'); }
+      });
+    })();
+
+    // 섹션5 일일권 차트 드래그/스와이프
+    (function() {
+      var c = document.getElementById('daypass-chart');
+      var w = document.getElementById('daypass-chart-wrap');
+
+      var tStartX = 0, tScrollLeft = 0;
+      c.addEventListener('touchstart', function(e) {
+        tStartX     = e.touches[0].clientX;
+        tScrollLeft = w.scrollLeft;
+      }, { passive: true });
+      c.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        w.scrollLeft = tScrollLeft + (tStartX - e.touches[0].clientX);
+      }, { passive: false });
+
+      var mStartX = 0, mScrollLeft = 0, dragging = false;
+      c.addEventListener('mousedown', function(e) {
+        dragging = true; mStartX = e.clientX; mScrollLeft = w.scrollLeft;
+        c.style.cursor = 'grabbing';
+        if (daypassChart) { daypassChart.options.plugins.tooltip.enabled = false; daypassChart.update('none'); }
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        w.scrollLeft = mScrollLeft - (e.clientX - mStartX);
+      });
+      document.addEventListener('mouseup', function() {
+        if (!dragging) return;
+        dragging = false; c.style.cursor = 'grab';
+        if (daypassChart) { daypassChart.options.plugins.tooltip.enabled = true; daypassChart.update('none'); }
       });
     })();
 
