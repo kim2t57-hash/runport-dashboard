@@ -510,31 +510,17 @@
     </div>
   </div>
 
-  <div class="section-label"><span class="sl-num">01</span><span class="sl-title">상품별 판매 실적 vs 목표</span></div>
-  <p class="table-hint">▶ 행을 클릭하면 개별 상품 현황을 자세히 볼 수 있어요</p>
+  <div class="section-label"><span class="sl-num">01</span><span class="sl-title">월별/주차별 판매 현황</span></div>
+  <p class="table-hint">▶ 행을 클릭하면 개별 상품 현황을 자세히 볼 수 있어요 · 건수 / VAT 제외 금액 기준</p>
   <div class="s2-metric" style="margin-bottom:10px">
-    <button class="metric-btn active" id="tgt-v1-btn" onclick="setTargetView('v1')">목표(최초)</button>
-    <button class="metric-btn"        id="tgt-v2-btn" onclick="setTargetView('v2')">목표(변경1)</button>
+    <button class="metric-btn active" id="s6-monthly-btn" onclick="setS6ViewMode('monthly')">월별</button>
+    <button class="metric-btn"        id="s6-weekly-btn"  onclick="setS6ViewMode('weekly')">주별</button>
   </div>
-
-  <div class="table-wrap" id="table-wrap">
+  <div class="table-wrap" id="s6-table-wrap">
     <div class="state"><div class="spinner"></div><span>데이터 불러오는 중...</span></div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">02</span><span class="sl-title">결제 추이 & 마감 예상</span></div>
-  <div class="s2-controls">
-    <div class="s2-filters" id="s3-filters"></div>
-    <div class="s2-metric">
-      <button class="metric-btn active" id="s3-m-count"   onclick="setS3Metric('count')">건수</button>
-      <button class="metric-btn"        id="s3-m-revenue" onclick="setS3Metric('revenue')">매출</button>
-    </div>
-  </div>
-  <div class="scoreboard" id="s3-stats"></div>
-  <div class="chart-wrap" style="height:300px">
-    <canvas id="s3-trend-chart"></canvas>
-  </div>
-
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">03</span><span class="sl-title">일별 판매 추이(정규권)</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">02</span><span class="sl-title">일별 판매 추이(정규권)</span></div>
   <div class="s2-controls">
     <div class="s2-filters" id="s2-filters"></div>
     <div class="s2-metric">
@@ -551,7 +537,7 @@
     </div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">04</span><span class="sl-title">체험권 판매 추이</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">03</span><span class="sl-title">체험권 판매 추이</span></div>
   <div class="s2-controls">
     <div class="s2-metric">
       <button class="metric-btn active" id="trial-m-count"   onclick="setTrialMetric('count')">건수</button>
@@ -566,7 +552,7 @@
     </div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">05</span><span class="sl-title">일일권 판매 추이</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">04</span><span class="sl-title">일일권 판매 추이</span></div>
   <div class="s2-controls">
     <div class="s2-metric">
       <button class="metric-btn active" id="daypass-m-count"   onclick="setDaypassMetric('count')">건수</button>
@@ -579,47 +565,6 @@
         <canvas id="daypass-chart"></canvas>
       </div>
     </div>
-  </div>
-
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">06</span><span class="sl-title">런포트 패키지 환불 현황</span></div>
-  <div class="s2-controls">
-    <div class="s2-filters" id="s5-filters"></div>
-  </div>
-  <div class="scoreboard" id="s5-stats"></div>
-  <div class="chart-wrap" style="height:300px">
-    <canvas id="s5-chart"></canvas>
-  </div>
-  <div class="s4-tables" id="s5-prod-tables"></div>
-
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">07</span><span class="sl-title">사우나only 교차구매 분석</span></div>
-  <div style="margin-bottom: 16px">
-    <span class="s4-summary" id="s4-summary"></span>
-  </div>
-  <div class="s4-tables">
-    <div class="s4-col">
-      <div class="s4-col-title">카테고리별</div>
-      <table class="cross-table" id="s4-cat-table">
-        <thead><tr><th>카테고리</th><th>인원</th><th>비율</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <div class="s4-col">
-      <div class="s4-col-title">상품별</div>
-      <table class="cross-table" id="s4-prod-table">
-        <thead><tr><th>상품</th><th>인원</th><th>비율</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">08</span><span class="sl-title">월별/주차별 판매 현황</span></div>
-  <p class="table-hint">▶ 행을 클릭하면 개별 상품 현황을 자세히 볼 수 있어요 · 건수 / VAT 제외 금액 기준</p>
-  <div class="s2-metric" style="margin-bottom:10px">
-    <button class="metric-btn active" id="s6-monthly-btn" onclick="setS6ViewMode('monthly')">월별</button>
-    <button class="metric-btn"        id="s6-weekly-btn"  onclick="setS6ViewMode('weekly')">주별</button>
-  </div>
-  <div class="table-wrap" id="s6-table-wrap">
-    <div class="state"><div class="spinner"></div><span>데이터 불러오는 중...</span></div>
   </div>
 
   <script>
@@ -682,33 +627,9 @@
     var lastDailyStats = null;
     var lastCategories = null;
 
-    var currentTargetView = 'v1';
     var lastRenderData    = null;
     var s6ViewMode        = 'monthly';
     var lastMonthlyData   = null;
-
-    const TARGETS_V1 = {
-      'Package - 런포트 패키지':       { count: 600,  revenue: 471960000 },
-      'Package - 버핏그라운드 패키지':  { count: 100,  revenue: 84210000  },
-      'Access - 버핏그라운드 멤버십':  { count: 541,  revenue: 282022600 },
-      'Access+Contents - PT':         { count: 109,  revenue: 178481440 },
-      'Access+Contents - 팀버핏':     { count: 200,  revenue: 155491000 },
-      'Contents - 사우나only':         { count: 100,  revenue: 40658000  },
-      'Contents - 체험권':             { count: 97,   revenue: 4859262   },
-      'option':                        { count: null, revenue: 45123616  },
-    };
-
-    const TARGETS_V2 = {
-      'Package - 런포트 패키지':       { count: 450,  revenue: 240301000 },
-      'Package - 버핏그라운드 패키지':  { count: 50,   revenue: 32460665  },
-      'Package - 팀버핏 패키지':       { count: 50,   revenue: 42123616  },
-      'Access - 버핏그라운드 멤버십':  { count: 541,  revenue: 282022600 },
-      'Access+Contents - PT':         { count: 109,  revenue: 178481440 },
-      'Access+Contents - 팀버핏':     { count: 350,  revenue: 293326000 },
-      'Contents - 사우나only':         { count: 50,   revenue: 15170000  },
-      'Contents - 체험권':             { count: 97,   revenue: 4859262   },
-      'option':                        { count: null, revenue: 45123616  },
-    };
 
     function setMetric(m) {
       s2Metric = m;
@@ -776,9 +697,10 @@
     }
 
     function buildChart(dailyStats) {
-      // 첫 결제일 ~ 오늘까지 전체 날짜 범위 생성 (빈 날짜 포함)
+      // 첫 결제일 ~ 오늘까지 전체 날짜 범위 생성 (빈 날짜 포함, 마감일 없이 매일 연장)
       var firstDate = new Date(dailyStats[0].date);
-      var lastDate  = new Date(PRESALE_END);
+      var nowS2Range = new Date(); nowS2Range.setHours(nowS2Range.getHours() + 9);
+      var lastDate  = new Date(nowS2Range.toISOString().substring(0, 10));
       var allDates = [];
       var cur = new Date(firstDate);
       while (cur <= lastDate) {
@@ -1070,7 +992,10 @@
     // ── 섹션 4/5: 상품별 일별 판매 추이 (체험권 / 일일권 공용) ──────────
     function buildDailyProductChart(dailyStats, metric, category, products, colors, chartId, wrapId, scrollInnerId, prevChart, pluginTag) {
       var firstDate = new Date(dailyStats[0].date);
-      var lastDate  = new Date(PRESALE_END);
+      // 마감일 없이 오늘까지 매일 연장
+      var nowD   = new Date(); nowD.setHours(nowD.getHours() + 9);
+      var todayD = nowD.toISOString().substring(0, 10);
+      var lastDate  = new Date(todayD);
       var allDates  = [];
       var cur = new Date(firstDate);
       while (cur <= lastDate) {
@@ -1104,9 +1029,6 @@
       var gridColor = 'rgba(255,255,255,0.04)';
       var tickColor = '#3A4F6A';
       var mono      = "'JetBrains Mono', monospace";
-
-      var nowD   = new Date(); nowD.setHours(nowD.getHours() + 9);
-      var todayD = nowD.toISOString().substring(0, 10);
 
       var todayLinePlugin = {
         id: 'todayLine' + pluginTag,
@@ -1270,290 +1192,6 @@
     }
     // ────────────────────────────────────────────────────────────
 
-    // ── 섹션 3: 누적 실적 vs 목표 vs 마감 예상 ──────────────────
-    const PRESALE_END = '2026-07-31';
-
-    var s3Chart        = null;
-    var s3Metric       = 'count';
-    var s3DailyStats   = null;
-    var s3TgtRevenue   = 0;
-    var s3TgtCount     = 0;
-    var s3Filter       = '전체';
-    var s3Categories   = [];
-
-    function setS3Filter(catName) {
-      s3Filter = catName;
-      document.querySelectorAll('#s3-filters .filter-btn').forEach(function(b) {
-        var isActive = b.dataset.cat === catName;
-        b.classList.toggle('active', isActive);
-        if (b.dataset.cat !== '전체') {
-          b.style.backgroundColor = isActive ? CAT_COLORS[b.dataset.cat] : '';
-          b.style.color           = isActive ? '#fff' : CAT_COLORS[b.dataset.cat];
-        }
-      });
-      if (s3DailyStats) buildTrendChart();
-    }
-
-    function makeS3FilterBtn(catName, isActive) {
-      var btn = document.createElement('button');
-      btn.className   = 'filter-btn' + (isActive ? ' active' : '');
-      btn.dataset.cat = catName;
-      btn.textContent = catName === '전체' ? '전체' : catName === 'option' ? '옵션상품' : catName.split(' - ').slice(1).join(' - ');
-      if (catName !== '전체') {
-        btn.style.borderColor     = CAT_COLORS[catName];
-        btn.style.color           = isActive ? '#fff' : CAT_COLORS[catName];
-        btn.style.backgroundColor = isActive ? CAT_COLORS[catName] : '';
-      }
-      btn.onclick = function() { setS3Filter(catName); };
-      return btn;
-    }
-
-    function setS3Metric(m) {
-      s3Metric = m;
-      document.getElementById('s3-m-revenue').classList.toggle('active', m === 'revenue');
-      document.getElementById('s3-m-count').classList.toggle('active',   m === 'count');
-      if (s3DailyStats) buildTrendChart();
-    }
-
-    function renderSection3(dailyStats, categories, tgtRevenue, tgtCount) {
-      if (!dailyStats || !dailyStats.length) return;
-      s3DailyStats  = dailyStats;
-      s3Categories  = categories;
-      s3TgtRevenue  = tgtRevenue;
-      s3TgtCount    = tgtCount;
-
-      var container = document.getElementById('s3-filters');
-      if (!container.hasChildNodes()) {
-        container.appendChild(makeS3FilterBtn('전체', true));
-        Object.keys(CAT_COLORS).forEach(function(cat) {
-          container.appendChild(makeS3FilterBtn(cat, false));
-        });
-      }
-      buildTrendChart();
-    }
-
-    function buildTrendChart() {
-      var metric = s3Metric;
-      var totalGoal;
-      if (s3Filter === '전체') {
-        totalGoal = metric === 'revenue' ? s3TgtRevenue : s3TgtCount;
-      } else {
-        var tgtV2 = TARGETS_V2[s3Filter] || null;
-        totalGoal = tgtV2
-          ? (metric === 'revenue' ? tgtV2.revenue : tgtV2.count) || 0
-          : 0;
-      }
-
-      // 날짜 범위: 첫 데이터 날짜 ~ PRESALE_END
-      var allDates = [];
-      var d = new Date(s3DailyStats[0].date);
-      var endD = new Date(PRESALE_END);
-      while (d <= endD) {
-        allDates.push(d.toISOString().substring(0, 10));
-        d.setDate(d.getDate() + 1);
-      }
-
-      // 일별 totals 맵 (필터 적용)
-      var dailyMap = {};
-      s3DailyStats.forEach(function(item) {
-        var total = 0;
-        if (s3Filter === '전체') {
-          Object.keys(item.byCategory).forEach(function(cat) {
-            if (metric === 'count' && EXCLUDE_FROM_TOTAL.has(cat)) return;
-            total += (item.byCategory[cat][metric] || 0);
-          });
-        } else {
-          total = (item.byCategory[s3Filter] && item.byCategory[s3Filter][metric]) || 0;
-        }
-        dailyMap[item.date] = total;
-      });
-
-      // 오늘 (UTC 기준, KST +9h 보정)
-      var now = new Date();
-      now.setHours(now.getHours() + 9);
-      var today = now.toISOString().substring(0, 10);
-
-      // 누적 실적 (오늘까지)
-      var cumActual  = [];
-      var runSum     = 0;
-      var currentVal = 0;
-      allDates.forEach(function(dt) {
-        if (dt <= today) {
-          runSum += (dailyMap[dt] || 0);
-          cumActual.push(runSum);
-          currentVal = runSum;
-        } else {
-          cumActual.push(null);
-        }
-      });
-
-      // 목표선 (선형)
-      var totalDays = allDates.length - 1;
-      var goalLine  = allDates.map(function(dt, i) {
-        return Math.round((i / totalDays) * totalGoal);
-      });
-
-      // 마감 예상 (오늘 이후 선형 외삽)
-      var todayIdx     = allDates.indexOf(today);
-      var dailyRate    = todayIdx > 0 ? currentVal / (todayIdx + 1) : 0;
-      var forecastLine = allDates.map(function(dt, i) {
-        if (i < todayIdx) return null;
-        return Math.round(currentVal + dailyRate * (i - todayIdx));
-      });
-      var forecastEnd = forecastLine[forecastLine.length - 1] || 0;
-
-      // 달성률 + 스코어보드
-      var hasGoal = totalGoal > 0;
-      var achPct  = hasGoal ? (currentVal / totalGoal * 100).toFixed(1) : null;
-
-      var fmt = metric === 'revenue'
-        ? function(v) { return (v / 100000000).toFixed(2) + '억'; }
-        : function(v) { return v.toLocaleString('ko-KR') + '명'; };
-
-      // 온/오프라인 집계 (건수 모드만)
-      var currentOnline = 0, currentOffline = 0;
-      if (metric === 'count' && s3Categories) {
-        s3Categories.forEach(function(c) {
-          if (s3Filter === '전체' && EXCLUDE_FROM_TOTAL.has(c.category)) return;
-          if (s3Filter === '전체' || c.category === s3Filter) {
-            currentOnline  += (c.onlineCount  || 0);
-            currentOffline += (c.offlineCount || 0);
-          }
-        });
-      }
-      var channelLine = (metric === 'count' && (currentOnline + currentOffline) > 0)
-        ? '<div class="sb-channel">온라인 ' + currentOnline + ' / 오프라인 ' + currentOffline + '</div>'
-        : '';
-
-      var goalCell = hasGoal
-        ? '<div class="sb-value">' + fmt(totalGoal) + '</div>'
-        : '<div class="sb-value sb-gray">—</div>';
-      document.getElementById('s3-stats').innerHTML =
-        '<div class="sb-cell">'
-          + '<div class="sb-label">최종 목표</div>' + goalCell
-        + '</div>'
-        + '<div class="sb-divider"></div>'
-        + '<div class="sb-cell">'
-          + '<div class="sb-label">현재</div>'
-          + '<div class="sb-value sb-blue">' + fmt(currentVal) + '</div>'
-          + channelLine
-          + (achPct ? '<div class="sb-ach">' + achPct + '% 달성</div>' : '')
-        + '</div>'
-        + '<div class="sb-divider"></div>'
-        + '<div class="sb-cell">'
-          + '<div class="sb-label">마감 예상</div>'
-          + '<div class="sb-value sb-gray">' + fmt(forecastEnd) + '</div>'
-        + '</div>';
-
-      var labels    = allDates.map(function(dt) { return dt.substring(5); });
-      var gridColor = 'rgba(255,255,255,0.04)';
-      var tickColor = '#3A4F6A';
-      var mono      = "'JetBrains Mono', monospace";
-      var yFmt      = metric === 'revenue'
-        ? function(v) { return (v / 100000000).toFixed(1) + '억'; }
-        : function(v) { return v.toLocaleString('ko-KR'); };
-
-      var todayLinePlugin = {
-        id: 'todayLine',
-        afterDraw: function(chart) {
-          var idx = allDates.indexOf(today);
-          if (idx < 0) return;
-          var xScale = chart.scales.x;
-          var yScale = chart.scales.y;
-          var ctx    = chart.ctx;
-          var x = xScale.getPixelForValue(idx);
-          ctx.save();
-          ctx.strokeStyle = 'rgba(255,90,80,0.65)';
-          ctx.setLineDash([4, 4]);
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(x, yScale.top);
-          ctx.lineTo(x, yScale.bottom);
-          ctx.stroke();
-          ctx.setLineDash([]);
-          ctx.fillStyle = 'rgba(255,110,100,0.9)';
-          ctx.font = '10px "Noto Sans KR"';
-          ctx.fillText('오늘', x + 4, yScale.top + 14);
-          ctx.restore();
-        }
-      };
-
-      var s3Datasets = [];
-      if (hasGoal) {
-        s3Datasets.push({
-          label: '목표',
-          data: goalLine,
-          borderColor: 'rgba(150,150,150,0.6)',
-          borderDash: [6, 4], borderWidth: 1.5,
-          pointRadius: 0, fill: false, tension: 0,
-        });
-      }
-      s3Datasets.push({
-        label: '누적 실적',
-        data: cumActual,
-        borderColor: '#3D7FFF', borderWidth: 2,
-        pointRadius: 0, fill: false, tension: 0.3,
-        spanGaps: false,
-      });
-      s3Datasets.push({
-        label: '마감 예상',
-        data: forecastLine,
-        borderColor: '#F5A623',
-        borderDash: [6, 4], borderWidth: 1.5,
-        pointRadius: 0, fill: false, tension: 0,
-        spanGaps: false,
-      });
-
-      if (s3Chart) s3Chart.destroy();
-      s3Chart = new Chart(document.getElementById('s3-trend-chart'), {
-        type: 'line',
-        plugins: [todayLinePlugin],
-        data: { labels: labels, datasets: s3Datasets },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true, position: 'bottom',
-              labels: {
-                color: tickColor, font: { size: 10 }, boxWidth: 20, padding: 16,
-                generateLabels: function() {
-                  var items = [];
-                  if (hasGoal) items.push({ text: '목표', strokeStyle: 'rgba(150,150,150,0.6)', lineDash: [6,4], lineWidth: 1.5, fillStyle: 'transparent', fontColor: tickColor });
-                  items.push({ text: '누적 실적', strokeStyle: '#3D7FFF', lineWidth: 2, fillStyle: 'transparent', fontColor: tickColor });
-                  items.push({ text: '마감 예상', strokeStyle: '#F5A623', lineDash: [6,4], lineWidth: 1.5, fillStyle: 'transparent', fontColor: tickColor });
-                  return items;
-                }
-              }
-            },
-            tooltip: {
-              mode: 'index', intersect: false,
-              callbacks: {
-                label: function(ctx) {
-                  if (ctx.parsed.y === null) return null;
-                  return ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y);
-                }
-              }
-            }
-          },
-          scales: {
-            x: {
-              grid: { color: gridColor },
-              ticks: {
-                color: tickColor, font: { family: mono, size: 10 }, maxRotation: 0,
-                callback: function(val, idx) {
-                  return idx % 7 === 0 ? this.getLabelForValue(val) : null;
-                }
-              }
-            },
-            y: {
-              grid: { color: gridColor },
-              ticks: { color: tickColor, font: { family: mono, size: 10 }, callback: yFmt }
-            }
-          }
-        }
-      });
-    }
-    // ────────────────────────────────────────────────────────────
 
     // 실적 집계 전 카테고리 — 실적 컬럼에 (미집계중) 표기
     const PENDING_CATEGORIES = new Set([
@@ -1714,156 +1352,17 @@
       return d;
     }
 
-    function tgtCell(catName, field, targetView) {
-      var v1Val = TARGETS_V1[catName] ? TARGETS_V1[catName][field] : undefined;
-      var v2Val = TARGETS_V2[catName] ? TARGETS_V2[catName][field] : undefined;
-      v1Val = (v1Val !== undefined) ? v1Val : null;
-      v2Val = (v2Val !== undefined) ? v2Val : null;
-
-      if (targetView !== 'v2') {
-        return v1Val !== null ? fmtN(v1Val) : dash();
-      }
-      if (v1Val === v2Val) {
-        return v2Val !== null ? fmtN(v2Val) : dash();
-      }
-      var oldLine = '<span class="tgt-old">' + (v1Val !== null ? fmtN(v1Val) : '—') + '</span><span class="tgt-arrow">→</span>';
-      return oldLine + (v2Val !== null ? fmtN(v2Val) : dash());
-    }
-
-    function renderSection1Table(data, targetView) {
-      var TARGETS_LOCAL = targetView === 'v2' ? TARGETS_V2 : TARGETS_V1;
-
-      // Pass 1: 집계 (건수는 EXCLUDE_FROM_TOTAL 제외, 금액은 전체 포함)
-      var totalCount = 0, totalRevenue = 0;
-      var totalTgtCount = 0, totalTgtRevenue = 0;
-
-      data.categories.forEach(function(cat) {
-        var localTgt      = TARGETS_LOCAL[cat.category] || { count: null, revenue: null };
-        var hasTgtCount   = localTgt.count   !== null;
-        var hasTgtRevenue = localTgt.revenue !== null && localTgt.revenue > 0;
-        var inTotalCount  = !EXCLUDE_FROM_TOTAL.has(cat.category);
-
-        if (hasTgtRevenue) { totalTgtRevenue += localTgt.revenue; }
-        totalRevenue += cat.revenue;
-        if (inTotalCount) {
-          if (hasTgtCount) { totalTgtCount += localTgt.count; }
-          totalCount += cat.count;
-        }
-      });
-
-      // Total 행 HTML (최상단 배치)
-      var totalHtml = '<tr class="totals-row">'
-        + '<td><span class="totals-label">Total</span></td>'
-        + '<td class="n strong">' + fmtN(totalTgtCount)
-          + '<div class="total-note">멤버십 기준</div></td>'
-        + '<td class="n strong">' + fmtN(totalCount)
-          + '<div class="total-note">사우나·체험권·체험일일권 제외</div></td>'
-        + '<td>' + progressCell(totalCount, totalTgtCount) + '</td>'
-        + '<td class="n strong">' + fmtN(totalTgtRevenue) + '</td>'
-        + '<td class="n strong">' + fmtN(totalRevenue) + '</td>'
-        + '<td>' + progressCell(totalRevenue, totalTgtRevenue) + '</td>'
-        + '</tr>';
-
-      // Pass 2: 카테고리·상품 행 HTML
-      var catHtml = '';
-      const GROUP_HEADERS_S1 = {
-        'Package - 런포트 패키지':     'RP',
-        'Package - 버핏그라운드 패키지': 'BG',
-        'Package - 팀버핏 패키지':     'TB',
-        'Contents - 사우나only':       '기타',
-        'Contents - 체험권':           '체험',
-      };
-      data.categories.forEach(function(cat, catIndex) {
-        var localTgt      = TARGETS_LOCAL[cat.category] || { count: null, revenue: null };
-        var band          = getBand(cat.category);
-        var catId         = 'cat-' + catIndex;
-        var parts         = cat.category.split(' - ');
-        var prefix        = parts[0];
-        var subName       = parts.slice(1).join(' - ');
-
-        var isPending      = PENDING_CATEGORIES.has(cat.category);
-        var isUpcoming     = UPCOMING_CATEGORIES.has(cat.category);
-        var isGita         = cat.category === 'option';
-        var isPTMerged     = cat.category === PT_MERGED;
-        var displayPrefix  = isGita ? '기타' : isPTMerged ? 'Contents' : prefix;
-        var displaySubName = cat.category === 'option' ? '옵션상품' : subName;
-
-        if (GROUP_HEADERS_S1[cat.category]) {
-          catHtml += '<tr class="group-header-row">'
-            + '<td colspan="7"><span class="group-label">'
-            + GROUP_HEADERS_S1[cat.category]
-            + '</span></td></tr>';
-        }
-
-        var tgtCountCell = tgtCell(cat.category, 'count', targetView);
-
-        var actualCountCell   = isPending ? pending() : isUpcoming ? upcoming() : (cat.count   > 0 ? fmtN(cat.count)   : dash());
-        var actualRevenueCell = isPending ? pending() : isUpcoming ? upcoming() : (cat.revenue > 0 ? fmtN(cat.revenue) : dash());
-        var countProgCell     = (isPending || isUpcoming) ? dash() : progressCell(cat.count,   localTgt.count);
-        var revenueProgCell   = (isPending || isUpcoming) ? dash() : progressCell(cat.revenue, localTgt.revenue);
-
-        catHtml += '<tr class="cat-row ' + band + '" data-cat-id="' + catId + '">'
-          + '<td class="col-name"><span class="cat-name">'
-          + '<span class="toggle-icon">▶</span>'
-          + '<span class="cat-text">'
-          + '<span class="cat-prefix">' + displayPrefix + '</span>'
-          + displaySubName
-          + '</span></span></td>'
-          + '<td class="n">'        + tgtCountCell                                 + '</td>'
-          + '<td class="n strong">' + actualCountCell                              + '</td>'
-          + '<td>'                  + countProgCell                                + '</td>'
-          + '<td class="n">'        + tgtCell(cat.category, 'revenue', targetView) + '</td>'
-          + '<td class="n strong">' + actualRevenueCell                            + '</td>'
-          + '<td>'                  + revenueProgCell                              + '</td>'
-          + '</tr>';
-
-        cat.products.forEach(function(prod, i) {
-          var cls = 'prod-row'
-            + (prod.count === 0 ? ' zero' : '')
-            + (i === cat.products.length - 1 ? ' last-in-group' : '');
-          catHtml += '<tr class="' + cls + ' ' + band + '" data-cat-parent="' + catId + '" style="display:none">'
-            + '<td class="col-name"><span class="prod-name">└ ' + prod.name + '</span></td>'
-            + '<td class="n dim">' + dash() + '</td>'
-            + '<td class="n">'    + (prod.count   > 0 ? fmtN(prod.count)   : dash()) + '</td>'
-            + '<td class="n dim">' + dash() + '</td>'
-            + '<td class="n dim">' + dash() + '</td>'
-            + '<td class="n">'    + (prod.revenue > 0 ? fmtN(prod.revenue) : dash()) + '</td>'
-            + '<td class="n dim">' + dash() + '</td>'
-            + '</tr>';
-        });
-      });
-
-      document.getElementById('table-wrap').innerHTML =
-        '<table>'
-        + '<thead><tr>'
-        + '<th class="col-name">판매상품</th>'
-        + '<th>목표건수</th><th>실적건수</th><th class="col-prog">건수 달성률</th>'
-        + '<th>목표금액 (원)<span class="vat-tag">VAT+</span></th><th>실적금액 (원)<span class="vat-tag">VAT+</span></th><th class="col-prog">금액 달성률</th>'
-        + '</tr></thead>'
-        + '<tbody>' + totalHtml + catHtml + '</tbody>'
-        + '</table>';
-    }
-
     function render(data) {
       data = mergePTCategories(data);
       lastRenderData = data;
-      renderSection1Table(data, currentTargetView);
 
       if (data.updatedAt) {
         document.getElementById('updated-at').textContent =
           new Date(data.updatedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
       }
 
-      var s3TgtRev = 0, s3TgtCnt = 0;
-      data.categories.forEach(function(cat) {
-        var tgt = TARGETS_V2[cat.category] || { count: null, revenue: null };
-        if (tgt.revenue !== null && tgt.revenue > 0) s3TgtRev += tgt.revenue;
-        if (!EXCLUDE_FROM_TOTAL.has(cat.category) && tgt.count !== null) s3TgtCnt += tgt.count;
-      });
-
       lastCategories = data.categories;
       renderSection2(data.dailyStats);
-      renderSection3(data.dailyStats, data.categories, s3TgtRev, s3TgtCnt);
       renderTrialSection(data.dailyStats);
       renderDaypassSection(data.dailyStats);
     }
@@ -1879,24 +1378,6 @@
       }
     }
 
-    function setTargetView(view) {
-      currentTargetView = view;
-      document.getElementById('tgt-v1-btn').classList.toggle('active', view === 'v1');
-      document.getElementById('tgt-v2-btn').classList.toggle('active', view === 'v2');
-      if (lastRenderData) renderSection1Table(lastRenderData, view);
-    }
-
-    // 세분류 토글 (이벤트 위임 - table-wrap은 교체되지 않으므로 한 번만 등록)
-    document.getElementById('table-wrap').addEventListener('click', function(e) {
-      var row = e.target.closest('tr.cat-row');
-      if (!row) return;
-      var catId = row.dataset.catId;
-      var isExpanded = row.classList.toggle('expanded');
-      document.querySelectorAll('[data-cat-parent="' + catId + '"]').forEach(function(r) {
-        r.style.display = isExpanded ? '' : 'none';
-      });
-    });
-
     document.getElementById('s6-table-wrap').addEventListener('click', function(e) {
       var row = e.target.closest('tr.cat-row');
       if (!row) return;
@@ -1909,235 +1390,6 @@
     });
 
     var SCRIPT_URL = 'https://script.google.com/a/macros/butfitseoul.com/s/AKfycbwrqSx4JIFCbq__IZGVQuVGK4aGaIYcogvWVULTQmLgTXcoPPre7uIPfKs1xG4_qtk/exec';
-
-    function renderS4(d) {
-      var total = d.totalSaunaOnlyBuyers || 0;
-      var only  = d.onlyBuyers || 0;
-      var cross = total - only;
-      document.getElementById('s4-summary').textContent =
-        '총 ' + total + '명 · 중복구매 ' + cross + '명 · 사우나only 전용 ' + only + '명';
-
-      function fillTable(tbodyEl, rows, keyField) {
-        tbodyEl.innerHTML = rows.map(function(r) {
-          return '<tr><td>' + r[keyField] + '</td>'
-            + '<td>' + r.count + '</td>'
-            + '<td>' + r.pct + '</td></tr>';
-        }).join('');
-      }
-      fillTable(document.querySelector('#s4-cat-table tbody'),  d.crossByCategory || [], 'category');
-      fillTable(document.querySelector('#s4-prod-table tbody'), d.crossByProduct  || [], 'product');
-    }
-
-    // ── 섹션 5: 환불 현황 ──────────────────────────────────────────────
-    var s5Filter = '전체';
-    var s5Chart  = null;
-    var s5Data   = null;
-
-    const S5_CATS = ['Package - 런포트 패키지', 'Package - 버핏그라운드 패키지'];
-    const S5_COLORS = {
-      'Package - 런포트 패키지':    '#3D7FFF',
-      'Package - 버핏그라운드 패키지': '#1FD49A',
-    };
-    const S5_LABELS = {
-      'Package - 런포트 패키지':    '런포트 패키지',
-      'Package - 버핏그라운드 패키지': '버핏그라운드 패키지',
-    };
-
-    function setS5Filter(cat) {
-      s5Filter = cat;
-      document.querySelectorAll('#s5-filters .filter-btn').forEach(function(b) {
-        var isActive = b.dataset.cat === cat;
-        b.classList.toggle('active', isActive);
-        var col = S5_COLORS[b.dataset.cat] || '#3D7FFF';
-        b.style.borderColor     = col;
-        b.style.color           = isActive ? '#fff' : col;
-        b.style.backgroundColor = isActive ? col : '';
-      });
-      buildS5Chart();
-      renderS5ProdTable();
-    }
-
-    function buildS5Chart() {
-      if (!s5Data || !s5Data.dailyRefunds) return;
-      var daily = s5Data.dailyRefunds;
-      if (daily.length === 0) return;
-
-      var firstDate = new Date(daily[0].date);
-      var nowKST5 = new Date(); nowKST5.setHours(nowKST5.getHours() + 9);
-      var todayS5Str = nowKST5.toISOString().substring(0, 10);
-      var lastDate  = new Date(todayS5Str);
-      var allDates  = [];
-      var cur = new Date(firstDate);
-      while (cur <= lastDate) {
-        allDates.push(cur.toISOString().substring(0, 10));
-        cur.setDate(cur.getDate() + 1);
-      }
-      var dataByDate = {};
-      daily.forEach(function(d) { dataByDate[d.date] = d; });
-
-      var labels = allDates.map(function(d) { return d.substring(5); });
-
-      var datasets;
-      var isStack = s5Filter === '전체';
-      if (isStack) {
-        datasets = S5_CATS.map(function(cat) {
-          return {
-            label: S5_LABELS[cat],
-            data: allDates.map(function(d) {
-              var entry = dataByDate[d];
-              return (entry && entry.byCat && entry.byCat[cat]) || 0;
-            }),
-            backgroundColor: S5_COLORS[cat],
-            borderRadius: 2, borderSkipped: false,
-          };
-        });
-      } else {
-        datasets = [{
-          label: S5_LABELS[s5Filter] || s5Filter,
-          data: allDates.map(function(d) {
-            var entry = dataByDate[d];
-            return (entry && entry.byCat && entry.byCat[s5Filter]) || 0;
-          }),
-          backgroundColor: S5_COLORS[s5Filter] || '#3D7FFF',
-          borderRadius: 3, borderSkipped: false,
-        }];
-      }
-
-      var gridColor = 'rgba(255,255,255,0.04)';
-      var tickColor = '#3A4F6A';
-      var mono      = "'JetBrains Mono', monospace";
-
-      var todayLinePluginS5 = {
-        id: 'todayLineS5',
-        afterDraw: function(chart) {
-          var idx = allDates.indexOf(todayS5Str);
-          if (idx < 0) return;
-          var xScale = chart.scales.x;
-          var yScale = chart.scales.y;
-          var ctx2   = chart.ctx;
-          var x = xScale.getPixelForValue(idx);
-          ctx2.save();
-          ctx2.strokeStyle = 'rgba(255,90,80,0.65)';
-          ctx2.setLineDash([4, 4]);
-          ctx2.lineWidth = 1;
-          ctx2.beginPath();
-          ctx2.moveTo(x, yScale.top);
-          ctx2.lineTo(x, yScale.bottom);
-          ctx2.stroke();
-          ctx2.setLineDash([]);
-          ctx2.restore();
-        }
-      };
-
-      if (s5Chart) s5Chart.destroy();
-      var canvas = document.getElementById('s5-chart');
-      s5Chart = new Chart(canvas, {
-        type: 'bar',
-        data: { labels: labels, datasets: datasets },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: isStack, labels: { color: '#8AAAC8', font: { size: 11, family: mono } } },
-            tooltip: { mode: 'index', intersect: false },
-          },
-          scales: {
-            x: {
-              stacked: isStack,
-              grid: { color: gridColor },
-              ticks: { color: tickColor, font: { size: 10, family: mono }, maxRotation: 0 },
-            },
-            y: {
-              stacked: isStack,
-              grid: { color: gridColor },
-              ticks: {
-                color: tickColor, font: { size: 10, family: mono },
-                stepSize: 1, precision: 0,
-              },
-              beginAtZero: true,
-            },
-          },
-        },
-        plugins: [todayLinePluginS5],
-      });
-    }
-
-    function renderS5ProdTable() {
-      if (!s5Data) return;
-      var container = document.getElementById('s5-prod-tables');
-      var byCat = s5Data.byCat || {};
-      var cats = s5Filter === '전체' ? S5_CATS : [s5Filter];
-
-      var html = cats.map(function(cat) {
-        var catData = byCat[cat];
-        var prods = catData ? catData.products : {};
-        var rows = Object.keys(prods).sort(function(a, b) { return prods[b] - prods[a]; });
-        return '<div class="s4-col">'
-          + '<div class="s4-col-title">' + S5_LABELS[cat] + '</div>'
-          + '<table class="cross-table">'
-          + '<thead><tr><th>상품</th><th>환불건수</th></tr></thead>'
-          + '<tbody>'
-          + (rows.length > 0
-              ? rows.map(function(p) {
-                  return '<tr><td>' + p + '</td><td>' + prods[p] + '</td></tr>';
-                }).join('')
-              : '<tr><td colspan="2" style="text-align:center;color:#3A4F6A">환불 없음</td></tr>')
-          + '</tbody></table></div>';
-      }).join('');
-
-      container.innerHTML = html;
-    }
-
-    function renderS5(d) {
-      if (d.error) return;
-      s5Data = d;
-
-      var byCat = d.byCat || {};
-      var rpCount = (byCat['Package - 런포트 패키지']    && byCat['Package - 런포트 패키지'].count)    || 0;
-      var chCount = (byCat['Package - 버핏그라운드 패키지'] && byCat['Package - 버핏그라운드 패키지'].count) || 0;
-      var total = d.total || 0;
-      document.getElementById('s5-stats').innerHTML =
-        '<div class="sb-cell">'
-          + '<div class="sb-label">런포트 패키지</div>'
-          + '<div class="sb-value sb-blue">' + rpCount + '건</div>'
-        + '</div>'
-        + '<div class="sb-divider"></div>'
-        + '<div class="sb-cell">'
-          + '<div class="sb-label">버핏그라운드 패키지</div>'
-          + '<div class="sb-value sb-blue">' + chCount + '건</div>'
-        + '</div>'
-        + '<div class="sb-divider"></div>'
-        + '<div class="sb-cell">'
-          + '<div class="sb-label">총 환불</div>'
-          + '<div class="sb-value">' + total + '건</div>'
-        + '</div>';
-
-      var filterContainer = document.getElementById('s5-filters');
-      if (!filterContainer.hasChildNodes()) {
-        ['전체'].concat(S5_CATS).forEach(function(cat, i) {
-          var btn = document.createElement('button');
-          btn.className = 'filter-btn' + (i === 0 ? ' active' : '');
-          btn.dataset.cat = cat;
-          btn.textContent = i === 0 ? '전체' : S5_LABELS[cat];
-          var col = S5_COLORS[cat] || '#3D7FFF';
-          btn.style.borderColor = col;
-          btn.style.color           = i === 0 ? '#fff' : col;
-          btn.style.backgroundColor = i === 0 ? col : '';
-          btn.addEventListener('click', function() { setS5Filter(cat); });
-          filterContainer.appendChild(btn);
-        });
-      }
-
-      if (d.dailyRefunds && d.dailyRefunds.length > 0) {
-        buildS5Chart();
-      } else {
-        var cv = document.getElementById('s5-chart');
-        cv.style.display = 'none';
-        cv.insertAdjacentHTML('afterend',
-          '<div style="color:#3A4F6A;padding:24px;text-align:center">환불 데이터 없음</div>');
-      }
-      renderS5ProdTable();
-    }
 
     function getWeekStart(dateStr) {
       var d    = new Date(dateStr + 'T00:00:00Z');
@@ -2357,33 +1609,23 @@
         })
         .catch(function() {});
 
-      fetch(SCRIPT_URL + '?mode=sauna_cross')
-        .then(function(res) { return res.json(); })
-        .then(function(d) { if (!d.error) renderS4(d); })
-        .catch(function() {});
-
-      fetch(SCRIPT_URL + '?mode=refund')
-        .then(function(res) { return res.json(); })
-        .then(function(d) { renderS5(d); })
-        .catch(function() {});
-
       fetch(SCRIPT_URL)
         .then(function(res) { return res.json(); })
         .then(function(data) {
           try {
             if (data.error) {
-              document.getElementById('table-wrap').innerHTML =
+              document.getElementById('s2-chart-wrap').innerHTML =
                 '<div class="state">⚠️ &nbsp;' + data.error + '</div>';
               return;
             }
             render(data);
           } catch(e) {
-            document.getElementById('table-wrap').innerHTML =
+            document.getElementById('s2-chart-wrap').innerHTML =
               '<div class="state">⚠️ &nbsp;파싱 오류: ' + e.message + '</div>';
           }
         })
         .catch(function(err) {
-          document.getElementById('table-wrap').innerHTML =
+          document.getElementById('s2-chart-wrap').innerHTML =
             '<div class="state">⚠️ &nbsp;로드 실패: ' + (err.message || err) + '</div>';
         });
     }
