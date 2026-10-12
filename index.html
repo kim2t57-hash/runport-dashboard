@@ -346,20 +346,10 @@
       border-radius: 12px; padding: 20px;
       position: relative; height: 280px;
     }
-    #s2-chart-wrap { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; height: auto; }
-    #s2-scroll-inner { display: flex; flex-direction: column; }
-    #s2-chart-inner { height: 240px; }
-    #trend-chart { cursor: grab; }
-
-    #trial-chart-wrap { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; height: auto; }
-    #trial-scroll-inner { display: flex; flex-direction: column; }
-    #trial-chart-inner { height: 240px; }
-    #trial-chart { cursor: grab; }
-
-    #daypass-chart-wrap { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; height: auto; }
-    #daypass-scroll-inner { display: flex; flex-direction: column; }
-    #daypass-chart-inner { height: 240px; }
-    #daypass-chart { cursor: grab; }
+    .chart-wrap.scroll { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; height: auto; }
+    .scroll-inner { display: flex; flex-direction: column; }
+    .chart-inner { height: 240px; }
+    .chart-inner canvas { cursor: grab; }
 
     /* ── 섹션2 타임라인 ── */
     #s2-timeline { position: relative; height: 68px; border-top: 1px solid rgba(255,255,255,0.06); }
@@ -526,18 +516,18 @@
     <div class="state"><div class="spinner"></div><span>데이터 불러오는 중...</span></div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">02</span><span class="sl-title">일별 판매 추이 (RP · 사우나only)</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">02</span><span class="sl-title">런포트 패키지 · 구독권 판매 추이</span></div>
   <div class="s2-controls">
     <div class="s2-filters" id="s2-filters"></div>
     <div class="s2-metric">
-      <button class="metric-btn active" id="m-count"   onclick="setMetric('count')">건수</button>
-      <button class="metric-btn"        id="m-revenue" onclick="setMetric('revenue')">매출</button>
+      <button class="metric-btn active" id="s2-m-count"   onclick="VIEWS.s2.setMetric('count')">건수</button>
+      <button class="metric-btn"        id="s2-m-revenue" onclick="VIEWS.s2.setMetric('revenue')">매출</button>
     </div>
   </div>
-  <div class="chart-wrap" id="s2-chart-wrap">
-    <div id="s2-scroll-inner">
-      <div id="s2-chart-inner">
-        <canvas id="trend-chart"></canvas>
+  <div class="chart-wrap scroll" id="s2-chart-wrap">
+    <div class="scroll-inner" id="s2-scroll-inner">
+      <div class="chart-inner">
+        <canvas id="s2-chart"></canvas>
       </div>
       <div id="s2-timeline"></div>
     </div>
@@ -546,29 +536,45 @@
   <div class="section-label" style="margin-top: 40px"><span class="sl-num">03</span><span class="sl-title">런포트 체험권 판매 추이</span></div>
   <div class="s2-controls">
     <div class="s2-metric">
-      <button class="metric-btn active" id="trial-m-count"   onclick="setTrialMetric('count')">건수</button>
-      <button class="metric-btn"        id="trial-m-revenue" onclick="setTrialMetric('revenue')">매출</button>
+      <button class="metric-btn active" id="trial-m-count"   onclick="VIEWS.trial.setMetric('count')">건수</button>
+      <button class="metric-btn"        id="trial-m-revenue" onclick="VIEWS.trial.setMetric('revenue')">매출</button>
     </div>
   </div>
-  <div class="chart-wrap" id="trial-chart-wrap">
-    <div id="trial-scroll-inner">
-      <div id="trial-chart-inner">
+  <div class="chart-wrap scroll" id="trial-chart-wrap">
+    <div class="scroll-inner" id="trial-scroll-inner">
+      <div class="chart-inner">
         <canvas id="trial-chart"></canvas>
       </div>
     </div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">04</span><span class="sl-title">런포트 1일권 판매 추이</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">04</span><span class="sl-title">런포트 1일권 · 횟수권 판매 추이</span></div>
   <div class="s2-controls">
+    <div class="s2-filters" id="daypass-filters"></div>
     <div class="s2-metric">
-      <button class="metric-btn active" id="daypass-m-count"   onclick="setDaypassMetric('count')">건수</button>
-      <button class="metric-btn"        id="daypass-m-revenue" onclick="setDaypassMetric('revenue')">매출</button>
+      <button class="metric-btn active" id="daypass-m-count"   onclick="VIEWS.daypass.setMetric('count')">건수</button>
+      <button class="metric-btn"        id="daypass-m-revenue" onclick="VIEWS.daypass.setMetric('revenue')">매출</button>
     </div>
   </div>
-  <div class="chart-wrap" id="daypass-chart-wrap">
-    <div id="daypass-scroll-inner">
-      <div id="daypass-chart-inner">
+  <div class="chart-wrap scroll" id="daypass-chart-wrap">
+    <div class="scroll-inner" id="daypass-scroll-inner">
+      <div class="chart-inner">
         <canvas id="daypass-chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">05</span><span class="sl-title">사우나 only 판매 추이</span></div>
+  <div class="s2-controls">
+    <div class="s2-metric">
+      <button class="metric-btn active" id="sauna-m-count"   onclick="VIEWS.sauna.setMetric('count')">건수</button>
+      <button class="metric-btn"        id="sauna-m-revenue" onclick="VIEWS.sauna.setMetric('revenue')">매출</button>
+    </div>
+  </div>
+  <div class="chart-wrap scroll" id="sauna-chart-wrap">
+    <div class="scroll-inner" id="sauna-scroll-inner">
+      <div class="chart-inner">
+        <canvas id="sauna-chart"></canvas>
       </div>
     </div>
   </div>
@@ -631,9 +637,17 @@
     function catColor(c) { return (CAT_STYLE[c] || {}).color || '#888'; }
     function catBand(c)  { return (CAT_STYLE[c] || {}).band  || ''; }
 
-    const S2_GROUPS       = ['RP', '사우나only'];  // 섹션2 대상 그룹
-    const TRIAL_CATEGORY  = '런포트 체험권';        // 섹션3
-    const DAYPASS_CATEGORY = '런포트 1일권(1회권)'; // 섹션4
+    // 차트 섹션 항목: cat = 카테고리, sub = 패키지 하위 브랜드(선택)
+    const S2_ITEMS = [                                                      // 섹션2
+      { label: '런포트 패키지', cat: '패키지', sub: '런포트 패키지' },
+      { label: '런포트 구독권', cat: '런포트 구독권' },
+    ];
+    const TRIAL_ITEMS   = [{ label: '런포트 체험권', cat: '런포트 체험권' }];  // 섹션3
+    const DAYPASS_ITEMS = [                                                 // 섹션4
+      { label: '런포트 1일권(1회권)', cat: '런포트 1일권(1회권)' },
+      { label: '런포트 횟수권',       cat: '런포트 횟수권' },
+    ];
+    const SAUNA_ITEMS   = [{ label: '사우나 only', cat: '사우나 only' }];    // 섹션5
 
     var lastDash   = null;
     var s6ViewMode = 'monthly';
@@ -977,92 +991,138 @@
       return chart;
     }
 
-    // 카테고리 1개 → 상품별(패키지는 브랜드별) 시리즈
-    function catBreakdownSeries(catName, metric) {
-      var cat = findCat(catName);
+    // ── 차트 섹션 항목 유틸 ──────────────────────────────────
+    function itemColor(it) {
+      return it.sub ? ((SUB_STYLE[it.sub] || {}).color || '#888') : catColor(it.cat);
+    }
+    function itemProducts(it) {
+      var cat = findCat(it.cat);
       if (!cat) return [];
-      if (cat.subs) {
+      if (!it.sub) return catProducts(cat);
+      var sub = (cat.subs || []).filter(function(s) { return s.name === it.sub; })[0];
+      return sub ? sub.products : [];
+    }
+    function itemDay(it, d, metric) {
+      return it.sub ? dayProds(d, it.cat, itemProducts(it), metric) : dayCat(d, it.cat, metric);
+    }
+    // 항목 1개 → 상품별 시리즈 (패키지 전체는 브랜드별)
+    function itemBreakdownSeries(it, metric) {
+      var cat = findCat(it.cat);
+      if (!cat) return [];
+      if (cat.subs && !it.sub) {
         return cat.subs.map(function(sub) {
           return { label: sub.name, color: (SUB_STYLE[sub.name] || {}).color || '#888',
-                   value: function(d) { return dayProds(d, catName, sub.products, metric); } };
+                   value: function(d) { return dayProds(d, it.cat, sub.products, metric); } };
         });
       }
-      var prods = cat.products || [];
-      var shades = genShades(catColor(catName), prods.length);
+      var prods = itemProducts(it);
+      var shades = genShades(itemColor(it), prods.length);
       return prods.map(function(p, i) {
-        return { label: p, color: shades[i], value: function(d) { return dayProds(d, catName, [p], metric); } };
+        return { label: p, color: shades[i], value: function(d) { return dayProds(d, it.cat, [p], metric); } };
       });
     }
 
-    // ── 섹션2: 일별 판매 추이 (RP · 사우나only) ───────────────────
-    var trendChart = null;
-    var s2Metric   = 'count';
-    var s2Filter   = '전체';
+    // ── 섹션2~5 공용 차트 뷰 ──────────────────────────────────
+    // 항목 2개 이상: 필터 버튼(전체 = 항목별 합계, 항목 선택 = 상품별) / 1개: 상품별만
+    function makeChartView(key, items, afterDraw) {
+      var v = { chart: null, metric: 'count', filter: '전체' };
 
-    function s2Cats() {
-      var out = [];
-      lastDash.groups.forEach(function(g) {
-        if (S2_GROUPS.indexOf(g.group) >= 0) g.cats.forEach(function(c) { out.push(c.name); });
-      });
-      return out;
-    }
-
-    function setMetric(m) {
-      s2Metric = m;
-      document.getElementById('m-count').classList.toggle('active',   m === 'count');
-      document.getElementById('m-revenue').classList.toggle('active', m === 'revenue');
-      if (lastDash) buildChart();
-    }
-
-    function setS2Filter(catName) {
-      s2Filter = catName;
-      document.querySelectorAll('#s2-filters .filter-btn').forEach(function(b) {
-        var isActive = b.dataset.cat === catName;
-        b.classList.toggle('active', isActive);
-        if (b.dataset.cat !== '전체') {
-          b.style.backgroundColor = isActive ? catColor(b.dataset.cat) : '';
-          b.style.color           = isActive ? '#fff' : catColor(b.dataset.cat);
+      function filterBtn(label, color) {
+        var btn = document.createElement('button');
+        var isActive = v.filter === label;
+        btn.className   = 'filter-btn' + (isActive ? ' active' : '');
+        btn.textContent = label;
+        if (color) {
+          btn.style.borderColor     = color;
+          btn.style.color           = isActive ? '#fff' : color;
+          btn.style.backgroundColor = isActive ? color : '';
         }
-      });
-      if (lastDash) buildChart();
-    }
-
-    function makeFilterBtn(catName, isActive) {
-      var btn = document.createElement('button');
-      btn.className   = 'filter-btn' + (isActive ? ' active' : '');
-      btn.dataset.cat = catName;
-      btn.textContent = catName;
-      if (catName !== '전체') {
-        btn.style.borderColor     = catColor(catName);
-        btn.style.color           = isActive ? '#fff' : catColor(catName);
-        btn.style.backgroundColor = isActive ? catColor(catName) : '';
+        btn.onclick = function() { v.filter = label; v.render(); };
+        return btn;
       }
-      btn.onclick = function() { setS2Filter(catName); };
-      return btn;
+
+      v.render = function() {
+        if (!lastDash) return;
+        var box = document.getElementById(key + '-filters');
+        if (box) {
+          box.innerHTML = '';
+          box.appendChild(filterBtn('전체'));
+          items.forEach(function(it) { box.appendChild(filterBtn(it.label, itemColor(it))); });
+        }
+        var metric = v.metric, series;
+        if (items.length > 1 && v.filter === '전체') {
+          series = items.map(function(it) {
+            return { label: it.label, color: itemColor(it), value: function(d) { return itemDay(it, d, metric); } };
+          });
+        } else {
+          var it = items.filter(function(x) { return x.label === v.filter; })[0] || items[0];
+          series = itemBreakdownSeries(it, metric);
+        }
+        v.chart = drawBarChart({
+          series: series, metric: metric, prevChart: v.chart,
+          canvasId: key + '-chart', wrapId: key + '-chart-wrap', scrollInnerId: key + '-scroll-inner',
+          afterDraw: afterDraw
+        });
+      };
+
+      v.setMetric = function(m) {
+        v.metric = m;
+        document.getElementById(key + '-m-count').classList.toggle('active',   m === 'count');
+        document.getElementById(key + '-m-revenue').classList.toggle('active', m === 'revenue');
+        v.render();
+      };
+
+      attachDrag(key, function() { return v.chart; });
+      return v;
     }
 
-    function renderSection2() {
-      var container = document.getElementById('s2-filters');
-      container.innerHTML = '';
-      container.appendChild(makeFilterBtn('전체', s2Filter === '전체'));
-      s2Cats().forEach(function(c) { container.appendChild(makeFilterBtn(c, s2Filter === c)); });
-      buildChart();
-    }
+    // 차트 캔버스 스와이프/드래그 — Chart.js touch-action:none 우회
+    function attachDrag(key, getChart) {
+      var c = document.getElementById(key + '-chart');
+      var w = document.getElementById(key + '-chart-wrap');
 
-    function buildChart() {
-      var metric = s2Metric;
-      var series = s2Filter === '전체'
-        ? s2Cats().map(function(c) {
-            return { label: c, color: catColor(c), value: function(d) { return dayCat(d, c, metric); } };
-          })
-        : catBreakdownSeries(s2Filter, metric);
-      trendChart = drawBarChart({
-        series: series, metric: metric, prevChart: trendChart,
-        canvasId: 'trend-chart', wrapId: 's2-chart-wrap', scrollInnerId: 's2-scroll-inner',
-        afterDraw: function(chart, allDates) { buildTimeline(chart, allDates); }
+      // 터치 (모바일 스와이프)
+      var tStartX = 0, tScrollLeft = 0;
+      c.addEventListener('touchstart', function(e) {
+        tStartX     = e.touches[0].clientX;
+        tScrollLeft = w.scrollLeft;
+      }, { passive: true });
+      c.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        w.scrollLeft = tScrollLeft + (tStartX - e.touches[0].clientX);
+      }, { passive: false });
+
+      // 마우스 드래그 (데스크탑)
+      var mStartX = 0, mScrollLeft = 0, dragging = false;
+      function tooltip(on) {
+        var ch = getChart();
+        if (ch) { ch.options.plugins.tooltip.enabled = on; ch.update('none'); }
+      }
+      c.addEventListener('mousedown', function(e) {
+        dragging = true; mStartX = e.clientX; mScrollLeft = w.scrollLeft;
+        c.style.cursor = 'grabbing';
+        tooltip(false);
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        w.scrollLeft = mScrollLeft - (e.clientX - mStartX);
+      });
+      document.addEventListener('mouseup', function() {
+        if (!dragging) return;
+        dragging = false; c.style.cursor = 'grab';
+        tooltip(true);
       });
     }
 
+    var VIEWS = {
+      s2:      makeChartView('s2',      S2_ITEMS,      function(chart, allDates) { buildTimeline(chart, allDates); }),
+      trial:   makeChartView('trial',   TRIAL_ITEMS),
+      daypass: makeChartView('daypass', DAYPASS_ITEMS),
+      sauna:   makeChartView('sauna',   SAUNA_ITEMS),
+    };
+
+    // ── 섹션2 브랜드 타임라인 ─────────────────────────────────
     function buildTimeline(chart, allDates) {
       var container = document.getElementById('s2-timeline');
       container.innerHTML = '';
@@ -1133,38 +1193,6 @@
       });
     }
 
-    // ── 섹션3: 런포트 체험권 / 섹션4: 런포트 1일권 ──────────────────
-    var trialChart = null,   trialMetric = 'count';
-    var daypassChart = null, daypassMetric = 'count';
-
-    function renderTrialSection() {
-      trialChart = drawBarChart({
-        series: catBreakdownSeries(TRIAL_CATEGORY, trialMetric), metric: trialMetric, prevChart: trialChart,
-        canvasId: 'trial-chart', wrapId: 'trial-chart-wrap', scrollInnerId: 'trial-scroll-inner'
-      });
-    }
-
-    function renderDaypassSection() {
-      daypassChart = drawBarChart({
-        series: catBreakdownSeries(DAYPASS_CATEGORY, daypassMetric), metric: daypassMetric, prevChart: daypassChart,
-        canvasId: 'daypass-chart', wrapId: 'daypass-chart-wrap', scrollInnerId: 'daypass-scroll-inner'
-      });
-    }
-
-    function setTrialMetric(m) {
-      trialMetric = m;
-      document.getElementById('trial-m-count').classList.toggle('active',   m === 'count');
-      document.getElementById('trial-m-revenue').classList.toggle('active', m === 'revenue');
-      if (lastDash) renderTrialSection();
-    }
-
-    function setDaypassMetric(m) {
-      daypassMetric = m;
-      document.getElementById('daypass-m-count').classList.toggle('active',   m === 'count');
-      document.getElementById('daypass-m-revenue').classList.toggle('active', m === 'revenue');
-      if (lastDash) renderDaypassSection();
-    }
-
     // ── 로드 ─────────────────────────────────────────────────
     function render(data) {
       lastDash = data;
@@ -1173,9 +1201,7 @@
         ? data.dbUpdatedAt.substring(5).replace('-', '/')
         : new Date(data.updatedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
       renderSection1();
-      renderSection2();
-      renderTrialSection();
-      renderDaypassSection();
+      Object.keys(VIEWS).forEach(function(k) { VIEWS[k].render(); });
     }
 
     function showError(msg) {
@@ -1200,106 +1226,6 @@
       setTimeout(cycle, REFRESH_MS);
     })();
 
-    // 섹션4 체험권 차트 드래그/스와이프
-    (function() {
-      var c = document.getElementById('trial-chart');
-      var w = document.getElementById('trial-chart-wrap');
-
-      var tStartX = 0, tScrollLeft = 0;
-      c.addEventListener('touchstart', function(e) {
-        tStartX     = e.touches[0].clientX;
-        tScrollLeft = w.scrollLeft;
-      }, { passive: true });
-      c.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-        w.scrollLeft = tScrollLeft + (tStartX - e.touches[0].clientX);
-      }, { passive: false });
-
-      var mStartX = 0, mScrollLeft = 0, dragging = false;
-      c.addEventListener('mousedown', function(e) {
-        dragging = true; mStartX = e.clientX; mScrollLeft = w.scrollLeft;
-        c.style.cursor = 'grabbing';
-        if (trialChart) { trialChart.options.plugins.tooltip.enabled = false; trialChart.update('none'); }
-        e.preventDefault();
-      });
-      document.addEventListener('mousemove', function(e) {
-        if (!dragging) return;
-        w.scrollLeft = mScrollLeft - (e.clientX - mStartX);
-      });
-      document.addEventListener('mouseup', function() {
-        if (!dragging) return;
-        dragging = false; c.style.cursor = 'grab';
-        if (trialChart) { trialChart.options.plugins.tooltip.enabled = true; trialChart.update('none'); }
-      });
-    })();
-
-    // 섹션5 일일권 차트 드래그/스와이프
-    (function() {
-      var c = document.getElementById('daypass-chart');
-      var w = document.getElementById('daypass-chart-wrap');
-
-      var tStartX = 0, tScrollLeft = 0;
-      c.addEventListener('touchstart', function(e) {
-        tStartX     = e.touches[0].clientX;
-        tScrollLeft = w.scrollLeft;
-      }, { passive: true });
-      c.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-        w.scrollLeft = tScrollLeft + (tStartX - e.touches[0].clientX);
-      }, { passive: false });
-
-      var mStartX = 0, mScrollLeft = 0, dragging = false;
-      c.addEventListener('mousedown', function(e) {
-        dragging = true; mStartX = e.clientX; mScrollLeft = w.scrollLeft;
-        c.style.cursor = 'grabbing';
-        if (daypassChart) { daypassChart.options.plugins.tooltip.enabled = false; daypassChart.update('none'); }
-        e.preventDefault();
-      });
-      document.addEventListener('mousemove', function(e) {
-        if (!dragging) return;
-        w.scrollLeft = mScrollLeft - (e.clientX - mStartX);
-      });
-      document.addEventListener('mouseup', function() {
-        if (!dragging) return;
-        dragging = false; c.style.cursor = 'grab';
-        if (daypassChart) { daypassChart.options.plugins.tooltip.enabled = true; daypassChart.update('none'); }
-      });
-    })();
-
-    // 섹션2 차트 캔버스 스와이프/드래그 — Chart.js touch-action:none 우회
-    (function() {
-      var c = document.getElementById('trend-chart');
-      var w = document.getElementById('s2-chart-wrap');
-
-      // 터치 (모바일 스와이프)
-      var tStartX = 0, tScrollLeft = 0;
-      c.addEventListener('touchstart', function(e) {
-        tStartX     = e.touches[0].clientX;
-        tScrollLeft = w.scrollLeft;
-      }, { passive: true });
-      c.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-        w.scrollLeft = tScrollLeft + (tStartX - e.touches[0].clientX);
-      }, { passive: false });
-
-      // 마우스 드래그 (데스크탑)
-      var mStartX = 0, mScrollLeft = 0, dragging = false;
-      c.addEventListener('mousedown', function(e) {
-        dragging = true; mStartX = e.clientX; mScrollLeft = w.scrollLeft;
-        c.style.cursor = 'grabbing';
-        if (trendChart) { trendChart.options.plugins.tooltip.enabled = false; trendChart.update('none'); }
-        e.preventDefault();
-      });
-      document.addEventListener('mousemove', function(e) {
-        if (!dragging) return;
-        w.scrollLeft = mScrollLeft - (e.clientX - mStartX);
-      });
-      document.addEventListener('mouseup', function() {
-        if (!dragging) return;
-        dragging = false; c.style.cursor = 'grab';
-        if (trendChart) { trendChart.options.plugins.tooltip.enabled = true; trendChart.update('none'); }
-      });
-    })();
   </script>
 </body>
 </html>
