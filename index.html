@@ -516,7 +516,7 @@
     <div class="state"><div class="spinner"></div><span>데이터 불러오는 중...</span></div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">02</span><span class="sl-title">런포트 패키지 · 구독권 판매 추이</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">02</span><span class="sl-title">런포트 패키지 · 구독권 · 횟수권 판매 추이</span></div>
   <div class="s2-controls">
     <div class="s2-filters" id="s2-filters"></div>
     <div class="s2-metric">
@@ -548,9 +548,8 @@
     </div>
   </div>
 
-  <div class="section-label" style="margin-top: 40px"><span class="sl-num">04</span><span class="sl-title">런포트 1일권 · 횟수권 판매 추이</span></div>
+  <div class="section-label" style="margin-top: 40px"><span class="sl-num">04</span><span class="sl-title">런포트 1일권 판매 추이</span></div>
   <div class="s2-controls">
-    <div class="s2-filters" id="daypass-filters"></div>
     <div class="s2-metric">
       <button class="metric-btn active" id="daypass-m-count"   onclick="VIEWS.daypass.setMetric('count')">건수</button>
       <button class="metric-btn"        id="daypass-m-revenue" onclick="VIEWS.daypass.setMetric('revenue')">매출</button>
@@ -614,7 +613,7 @@
     const CAT_STYLE = {
       '런포트 1일권(1회권)': { color: '#F7C46A', band: 'band-trial' },
       '런포트 체험권':       { color: '#FB7185', band: 'band-pt-trial' },
-      '런포트 횟수권':       { color: '#3D7FFF', band: 'band-rp-pkg' },
+      '런포트 횟수권':       { color: '#2DD4BF', band: 'band-rp-pkg' },
       '런포트 구독권':       { color: '#7AABFF', band: 'band-rp-pkg' },
       '런포트 단체':         { color: '#22D3EE', band: 'band-rp-pkg' },
       '패키지':              { color: '#6366F1', band: 'band-rp-pkg' },
@@ -641,12 +640,10 @@
     const S2_ITEMS = [                                                      // 섹션2
       { label: '런포트 패키지', cat: '패키지', sub: '런포트 패키지' },
       { label: '런포트 구독권', cat: '런포트 구독권' },
+      { label: '런포트 횟수권', cat: '런포트 횟수권' },
     ];
     const TRIAL_ITEMS   = [{ label: '런포트 체험권', cat: '런포트 체험권' }];  // 섹션3
-    const DAYPASS_ITEMS = [                                                 // 섹션4
-      { label: '런포트 1일권(1회권)', cat: '런포트 1일권(1회권)' },
-      { label: '런포트 횟수권',       cat: '런포트 횟수권' },
-    ];
+    const DAYPASS_ITEMS = [{ label: '런포트 1일권(1회권)', cat: '런포트 1일권(1회권)' }];  // 섹션4
     const SAUNA_ITEMS   = [{ label: '사우나 only', cat: '사우나 only' }];    // 섹션5
 
     var lastDash   = null;
